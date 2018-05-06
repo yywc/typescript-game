@@ -18,12 +18,8 @@ export class Main {
     const loader = ResourceLoader.create()
     loader
       .onloaded()
-      .then((res) => {
-        this.onResourceFirstLoaded(res[0])
-      })
-      .catch((e) => {
-        console.error('Promise Error: ' + e)
-      })
+      .then(res => this.onResourceFirstLoaded(res[0]))
+      .catch(e => console.error('Promise Error: ' + e))
   }
 
   onResourceFirstLoaded(map) {
@@ -41,9 +37,22 @@ export class Main {
       .put('land', Land)
       .put('pencils', [])
       .put('birds', Birds)
+    this.registerEvent()
     // 在游戏开始前创建第一组铅笔
     this.director.createPencil()
     // run 方法绘制图像
     this.director.run()
+  }
+
+  registerEvent() {
+    this.canvas.addEventListener('touchstart', e => {
+      e.preventDefault()
+      if (this.director.isGameOver) {
+        console.log('游戏开始')
+        this.init()
+      } else {
+        this.director.birdsEvent()
+      }
+    })
   }
 }

@@ -26,6 +26,14 @@ export class Director {
     this.dataStore.get('pencils').push(new DownPencil(top))
   }
 
+  birdsEvent() {
+    const birds = this.dataStore.get('birds')
+    for (let i = 0; i < 3; i++) {
+      birds.y[i] = birds.birdsY[i]
+    }
+    birds.time = 0
+  }
+
   run() {
     if (!this.dataStore.isGameOver) {
       // 绘制相关精灵
@@ -42,21 +50,19 @@ export class Director {
       if (pencils[0].x <= (window.innerWidth - pencils[0].width) / 2 && pencils.length === 2) {
         this.createPencil()
       }
-      pencils.forEach((pencil) => {
-        pencil.draw()
-      })
+      pencils.forEach(pencil => pencil.draw())
 
       this.dataStore.get('land').draw()
 
       this.dataStore.get('birds').draw()
 
       // 跑动动画
-      const animationTimer = requestAnimationFrame(() => {
-        this.run()
-      })
+      const animationTimer = requestAnimationFrame(() => this.run())
       this.dataStore.put('animationTimer', animationTimer)
     } else {
+      console.log('游戏结束')
       cancelAnimationFrame(this.dataStore.get('animationTimer'))
+      this.dataStore.destroy()
     }
   }
 }
