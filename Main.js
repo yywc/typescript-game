@@ -12,6 +12,8 @@ export class Main {
     this.canvas = document.getElementById('canvas')
     this.ctx = this.canvas.getContext('2d')
     this.dataStore = DataStore.getInstance()
+    this.director = Director.getInstance()
+
     const loader = ResourceLoader.create()
     loader
       .onloaded()
@@ -31,10 +33,15 @@ export class Main {
   }
 
   init() {
+    // 控制游戏是否结束
+    this.dataStore.isGameOver = false
     this.dataStore
       .put('background', BackGround)
       .put('land', Land)
+      .put('pencils', [])
+    // 在游戏开始前创建第一组铅笔
+    this.director.createPencil()
     // run 方法绘制图像
-    Director.getInstance().run()
+    this.director.run()
   }
 }

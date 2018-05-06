@@ -2,24 +2,25 @@
  * 陆地类
  */
 import { Sprite } from '../base/Sprite.js'
+import { Director } from '../Director.js'
 
 export class Land extends Sprite {
   constructor() {
-    const img = Sprite.getImage('land')
+    const image = Sprite.getImage('land')
     super(
-      img,
+      image,
       0,
       0,
-      img.width,
-      img.height,
+      image.width,
+      image.height,
       0,
-      window.innerHeight - img.height,
+      window.innerHeight - image.height,
       // 使用图片的大小
-      img.width,
-      img.height
+      image.width,
+      image.height
     )
     this.landX = 0
-    this.landSpeed = 2
+    this.landSpeed = Director.getInstance().moveSpeed
   }
 
   draw() {
