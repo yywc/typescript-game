@@ -47,6 +47,7 @@ export class Director {
     const birds = this.dataStore.get('birds')
     const land = this.dataStore.get('land')
     const pencils = this.dataStore.get('pencils')
+    const score = this.dataStore.get('score')
 
     const birdBorder = {
       top: birds.y[0],
@@ -74,6 +75,12 @@ export class Director {
       this.isGameOver = true
       return
     }
+
+    if (score.isScore && birds.birdsX[0] >= (pencils[0].x + pencils[0].width)) {
+      // 结束加分
+      score.isScore = false
+      score.scoreNumber++
+    }
   }
 
   run() {
@@ -88,6 +95,8 @@ export class Director {
         // 推出该组铅笔，该组包含了上下两根
         pencils.shift()
         pencils.shift()
+        // 开启加分
+        this.dataStore.get('score').isScore = true
       }
       // 不断创建铅笔
       if (pencils[0].x <= (window.innerWidth - pencils[0].width) / 2 && pencils.length === 2) {
@@ -97,6 +106,8 @@ export class Director {
 
       this.dataStore.get('land').draw()
 
+      this.dataStore.get('score').draw()
+
       this.dataStore.get('birds').draw()
 
       // 跑动动画
@@ -104,6 +115,7 @@ export class Director {
       this.dataStore.put('animationTimer', animationTimer)
     } else {
       console.log('游戏结束')
+      this.dataStore.get('startButton').draw()
       cancelAnimationFrame(this.dataStore.get('animationTimer'))
       this.dataStore.destroy()
     }

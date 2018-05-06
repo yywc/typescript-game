@@ -7,6 +7,8 @@ import { Director } from './js/Director.js'
 import { DataStore } from './js/base/DataStore.js'
 import { Land } from './js/runtime/Land.js'
 import { Birds } from './js/player/Birds.js'
+import { StartButton } from './js/player/StartButton.js'
+import { Score } from './js/player/Score.js'
 
 export class Main {
   constructor() {
@@ -37,6 +39,8 @@ export class Main {
       .put('land', Land)
       .put('pencils', [])
       .put('birds', Birds)
+      .put('startButton', StartButton)
+      .put('score', Score)
     this.registerEvent()
     // 在游戏开始前创建第一组铅笔
     this.director.createPencil()
