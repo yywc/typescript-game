@@ -20,6 +20,10 @@ export class Birds extends Sprite {
     )
 
     // 小鸟的三种状态用数组去存储
+    const _birdWidth = 34
+    const _birdHeight = 34
+    const _birdX = window.innerWidth / 4
+    const _birdY = window.innerHeight / 2
     // 小鸟宽 34，高 24，上下边距 10，左右边距 9
     this.clippingX = [
       9,
@@ -27,18 +31,14 @@ export class Birds extends Sprite {
       9 + 34 + 18 + 34 + 18
     ]
     this.clippingY = [10, 10, 10]
-    this.birdWidth = 34
-    this.birdHeight = 34
-    this.clippingWidth = [this.birdWidth, this.birdWidth, this.birdWidth]
-    this.clippingHeight = [this.birdHeight, this.birdHeight, this.birdHeight]
-    this.birdsWidth = [this.birdWidth, this.birdWidth, this.birdWidth]
-    this.birdsHeight = [this.birdHeight, this.birdHeight, this.birdHeight]
-    this.birdX = window.innerWidth / 4
-    this.birdsX = [this.birdX, this.birdX, this.birdX]
-    this.birdY = window.innerHeight / 2
-    this.birdsY = [this.birdY, this.birdY, this.birdY]
+    this.clippingWidth = [_birdWidth, _birdWidth, _birdWidth]
+    this.clippingHeight = [_birdHeight, _birdHeight, _birdHeight]
+    this.birdsWidth = [_birdWidth, _birdWidth, _birdWidth]
+    this.birdsHeight = [_birdHeight, _birdHeight, _birdHeight]
+    this.birdsX = [_birdX, _birdX, _birdX]
+    this.birdsY = [_birdY, _birdY, _birdY]
     // 小鸟 y 坐标
-    this.y = [this.birdY, this.birdY, this.birdY]
+    this.y = [_birdY, _birdY, _birdY]
     // 小鸟下落时间
     this.time = 0
     // 判断小鸟是第几只

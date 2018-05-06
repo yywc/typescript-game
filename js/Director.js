@@ -34,8 +34,51 @@ export class Director {
     birds.time = 0
   }
 
+  // 与铅笔的碰撞检测
+  static isStrike(bird, pencil) {
+    return !(bird.top > pencil.bottom ||
+      bird.bottom < pencil.top ||
+      bird.right < pencil.left ||
+      bird.left > pencil.right)
+  }
+
+  // 检测碰撞，判断游戏是否结束
+  checkGameOver() {
+    const birds = this.dataStore.get('birds')
+    const land = this.dataStore.get('land')
+    const pencils = this.dataStore.get('pencils')
+
+    const birdBorder = {
+      top: birds.y[0],
+      right: birds.birdsX[0] + birds.birdsWidth[0],
+      bottom: birds.birdsY[0] + birds.birdsHeight[0],
+      left: birds.birdsX[0]
+    }
+
+    for (let pencil of pencils) {
+      const pencilBorder = {
+        top: pencil.y,
+        right: pencil.x + pencil.width,
+        bottom: pencil.y + pencil.height,
+        left: pencil.x
+      }
+      if (Director.isStrike(birdBorder, pencilBorder)) {
+        console.log('撞到铅笔了')
+        this.isGameOver = true
+        return
+      }
+    }
+
+    if (birds.birdsY[0] + birds.birdsHeight[0] >= land.y) {
+      console.log('撞到地板了')
+      this.isGameOver = true
+      return
+    }
+  }
+
   run() {
-    if (!this.dataStore.isGameOver) {
+    this.checkGameOver()
+    if (!this.isGameOver) {
       // 绘制相关精灵
       this.dataStore.get('background').draw()
 

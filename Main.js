@@ -31,7 +31,7 @@ export class Main {
 
   init() {
     // 控制游戏是否结束
-    this.dataStore.isGameOver = false
+    this.director.isGameOver = false
     this.dataStore
       .put('background', BackGround)
       .put('land', Land)
