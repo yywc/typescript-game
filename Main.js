@@ -6,6 +6,7 @@ import { BackGround } from './js/runtime/BackGround.js'
 import { Director } from './js/Director.js'
 import { DataStore } from './js/base/DataStore.js'
 import { Land } from './js/runtime/Land.js'
+import { Birds } from './js/player/Birds.js'
 
 export class Main {
   constructor() {
@@ -39,6 +40,7 @@ export class Main {
       .put('background', BackGround)
       .put('land', Land)
       .put('pencils', [])
+      .put('birds', Birds)
     // 在游戏开始前创建第一组铅笔
     this.director.createPencil()
     // run 方法绘制图像

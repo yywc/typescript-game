@@ -48,6 +48,8 @@ export class Director {
 
       this.dataStore.get('land').draw()
 
+      this.dataStore.get('birds').draw()
+
       // 跑动动画
       const animationTimer = requestAnimationFrame(() => {
         this.run()

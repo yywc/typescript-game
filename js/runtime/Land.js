@@ -28,16 +28,7 @@ export class Land extends Sprite {
     if (this.landX > (this.img.width - window.innerWidth)) {
       this.landX = 0
     }
-    super.draw(
-      this.img,
-      this.srcX,
-      this.srcY,
-      this.srcW,
-      this.srcH,
-      -this.landX,
-      this.y,
-      this.width,
-      this.height
-    )
+    this.x = -this.landX
+    super.draw()
   }
 }
