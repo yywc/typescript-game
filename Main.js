@@ -5,6 +5,7 @@ import { ResourceLoader } from './js/base/ResourceLoader.js'
 import { BackGround } from './js/runtime/BackGround.js'
 import { Director } from './js/Director.js'
 import { DataStore } from './js/base/DataStore.js'
+import { Land } from './js/runtime/Land.js'
 
 export class Main {
   constructor() {
@@ -23,6 +24,7 @@ export class Main {
   }
 
   onResourceFirstLoaded(map) {
+    // 给 dataStore 赋值，这些不需要重新生成的
     this.dataStore.ctx = this.ctx
     this.dataStore.res = map
     this.init()
@@ -30,9 +32,9 @@ export class Main {
 
   init() {
     this.dataStore
-      .put('background', new BackGround(this.ctx,
-        this.dataStore.res.get('background'))
-      )
+      .put('background', BackGround)
+      .put('land', Land)
+    // run 方法绘制图像
     Director.getInstance().run()
   }
 }

@@ -12,11 +12,16 @@ export class Director {
   }
 
   constructor() {
-    this.DataStore = DataStore.getInstance()
+    this.dataStore = DataStore.getInstance()
   }
 
   run() {
-    const backgroundSprite = this.DataStore.get('background')
-    backgroundSprite.draw()
+    this.dataStore.get('background').draw()
+    this.dataStore.get('land').draw()
+    // const animationTimer = requestAnimationFrame(() => {
+    //   this.run()
+    // })
+    // this.dataStore.put('animationTimer', animationTimer)
+    // cancelAnimationFrame(this.dataStore.get('animationTimer'))
   }
 }

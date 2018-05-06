@@ -14,6 +14,10 @@ export class DataStore {
   }
 
   put(key, value) {
+    if (typeof value === 'function') {
+      // eslint-disable-next-line new-cap
+      value = new value()
+    }
     this.map.set(key, value)
     return this
   }

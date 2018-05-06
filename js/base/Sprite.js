@@ -1,17 +1,17 @@
 /**
  * 精灵的基类，负责初始化精灵加载的资源和大小以及位置
  */
+import { DataStore } from './DataStore.js'
 
 export class Sprite {
-  constructor(ctx = null,
-              img = null,
+  constructor(img = null,
               srcX = 0,
               srcY = 0,
               srcW = 0,
               srcH = 0,
               x = 0, y = 0,
               width = 0, height = 0) {
-    this.ctx = ctx
+    this.ctx = DataStore.getInstance().ctx
     this.img = img
     this.srcX = srcX
     this.srcY = srcY
@@ -21,6 +21,15 @@ export class Sprite {
     this.y = y
     this.width = width
     this.height = height
+  }
+
+  /**
+   * 在子类 super 上获取 image
+   * @param key
+   * @returns {*}
+   */
+  static getImage(key) {
+    return DataStore.getInstance().res.get(key)
   }
 
   /**
