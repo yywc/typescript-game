@@ -13,16 +13,21 @@ export class ResourceLoader {
     }
   }
 
-  onloaded(fn) {
-    let loadCount = 0
+  onloaded() {
+    let pr = []
     for (let img of this.map.values()) {
-      img.onload = () => {
-        loadCount++
-        if (loadCount >= this.map.size) {
-          fn(this.map)
+      let p = new Promise((resolve, reject) => {
+        img.onload = () => {
+          resolve(this.map)
         }
-      }
+        img.onerror = () => {
+          reject(new Error('Could not load image '))
+        }
+      })
+      pr.push(p)
     }
+    // 图片全部加载完
+    return Promise.all(pr)
   }
 
   static create() {
