@@ -19,10 +19,25 @@
             height: 100%;
             overflow: hidden;
         }
+
+        .canvas {
+            -webkit-filter: grayscale(100%);
+            -moz-filter: grayscale(100%);
+            -ms-filter: grayscale(100%);
+            -o-filter: grayscale(100%);
+            filter: grayscale(100%);
+            filter: gray;
+        }
     </style>
+    <script>
+      window.onload = function () {
+        document.getElementById('canvas').setAttribute('width', window.innerWidth)
+        document.getElementById('canvas').setAttribute('height', window.innerHeight)
+      }
+    </script>
 </head>
 <body>
-<canvas id="canvas" width="375" height="667"></canvas>
+<canvas id="canvas" class="canvas"></canvas>
 <script type="module" src="game.js"></script>
 </body>
 </html>

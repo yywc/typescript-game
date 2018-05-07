@@ -3,6 +3,8 @@
  * 循环渲染三只小鸟，其实是循环渲染图片的三个部分
  */
 import { Sprite } from '../base/Sprite.js'
+import { DataStore } from '../base/DataStore.js'
+import { Director } from '../Director.js'
 
 export class Birds extends Sprite {
   constructor() {
@@ -18,10 +20,10 @@ export class Birds extends Sprite {
       image.width,
       image.height
     )
-
+    this.ctx = DataStore.getInstance().ctx
     // 小鸟的三种状态用数组去存储
     const _birdWidth = 34
-    const _birdHeight = 34
+    const _birdHeight = 24
     const _birdX = window.innerWidth / 4
     const _birdY = window.innerHeight / 2
     // 小鸟宽 34，高 24，上下边距 10，左右边距 9
@@ -45,6 +47,9 @@ export class Birds extends Sprite {
     this.index = 0
     // 循环小鸟个数
     this.count = 0
+
+    this.birdX = 0
+    this.birdSpeed = Director.getInstance().moveSpeed
   }
 
   draw() {
@@ -79,5 +84,24 @@ export class Birds extends Sprite {
       this.birdsWidth[this.index],
       this.birdsHeight[this.index]
     )
+  }
+
+  drawOther() {
+    this.birdX += this.birdSpeed
+    this.ctx.save()// 保存状态
+    this.ctx.translate(window.innerWidth - 5, 0)
+    this.ctx.scale(-1, 1)
+    super.draw(
+      this.img,
+      9,
+      10,
+      34,
+      24,
+      this.birdX,
+      window.innerHeight / 2.5,
+      34,
+      24
+    )
+    this.ctx.restore()// 恢复状态
   }
 }

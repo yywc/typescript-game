@@ -12,7 +12,7 @@ export class DownPencil extends Pencil {
 
   draw() {
     // 两支铅笔之间固定的间距
-    const gap = window.innerHeight / 7
+    const gap = window.innerHeight / 9
     this.y = this.top + gap
     super.draw()
   }

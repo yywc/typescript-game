@@ -80,6 +80,10 @@ export class Director {
       // 结束加分
       score.isScore = false
       score.scoreNumber++
+      this.dataStore.isStory = false
+      if (score.scoreNumber === 2) {
+        this.dataStore.canvas.classList.remove('canvas')
+      }
     }
   }
 
@@ -109,6 +113,14 @@ export class Director {
       this.dataStore.get('score').draw()
 
       this.dataStore.get('birds').draw()
+
+      if (this.dataStore.isStory) {
+        this.dataStore.get('story').draw()
+      }
+
+      if (this.dataStore.get('score').scoreNumber === 2) {
+        this.dataStore.get('birds').drawOther()
+      }
 
       // 跑动动画
       const animationTimer = requestAnimationFrame(() => this.run())

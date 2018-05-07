@@ -9,6 +9,7 @@ import { Land } from './js/runtime/Land.js'
 import { Birds } from './js/player/Birds.js'
 import { StartButton } from './js/player/StartButton.js'
 import { Score } from './js/player/Score.js'
+import { Story } from './js/player/Story.js'
 
 export class Main {
   constructor() {
@@ -27,7 +28,9 @@ export class Main {
   onResourceFirstLoaded(map) {
     // 给 dataStore 赋值，这些不需要重新生成的
     this.dataStore.ctx = this.ctx
+    this.dataStore.canvas = this.canvas
     this.dataStore.res = map
+    this.dataStore.isStory = true
     this.init()
   }
 
@@ -41,6 +44,7 @@ export class Main {
       .put('birds', Birds)
       .put('startButton', StartButton)
       .put('score', Score)
+      .put('story', Story)
     this.registerEvent()
     // 在游戏开始前创建第一组铅笔
     this.director.createPencil()
@@ -53,6 +57,8 @@ export class Main {
       e.preventDefault()
       if (this.director.isGameOver) {
         console.log('游戏开始')
+        this.dataStore.isStory = true
+        this.dataStore.canvas.classList.add('canvas')
         this.init()
       } else {
         this.director.birdsEvent()
