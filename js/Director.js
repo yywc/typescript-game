@@ -81,7 +81,7 @@ export class Director {
       score.isScore = false
       score.scoreNumber++
       this.dataStore.isStory = false
-      if (score.scoreNumber === 2) {
+      if (score.scoreNumber === 5) {
         this.dataStore.canvas.classList.remove('canvas')
       }
     }
@@ -118,7 +118,7 @@ export class Director {
         this.dataStore.get('story').draw()
       }
 
-      if (this.dataStore.get('score').scoreNumber === 2) {
+      if (this.dataStore.get('score').scoreNumber === 5) {
         this.dataStore.get('birds').drawOther()
       }
 
