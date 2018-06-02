@@ -11,7 +11,7 @@ export class Pencil extends Sprite {
       0,
       0,
       image.width,
-      image.height, 
+      image.height,
       DataStore.getInstance().canvas.width,
       0,
       image.width,

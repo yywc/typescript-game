@@ -10,6 +10,7 @@ import { Birds } from './js/player/Birds.js'
 import { StartButton } from './js/player/StartButton.js'
 import { Score } from './js/player/Score.js'
 import { Story } from './js/player/Story.js'
+import { ApiExamples } from './js/ApiExamples.js'
 
 export class Main {
   constructor() {
@@ -25,12 +26,26 @@ export class Main {
       .catch(e => console.error('Promise Error: ' + e))
   }
 
+  // 创建背景音乐
+  createBackgroundMusic() {
+    const bgm = wx.createInnerAudioContext()
+    bgm.autoplay = true
+    bgm.loop = true
+    bgm.src = 'audios/bgm.mp3'
+  }
+
   onResourceFirstLoaded(map) {
     // 给 dataStore 赋值，这些不需要重新生成的
     this.dataStore.ctx = this.ctx
     this.dataStore.canvas = this.canvas
     this.dataStore.res = map
     // this.dataStore.isStory = true
+    // this.createBackgroundMusic()
+    const apiExamples = new ApiExamples()
+    // apiExamples.getUserInfo()
+    // apiExamples.login()
+    // apiExamples.httpExample()
+    apiExamples.wsExample()
     this.init()
   }
 

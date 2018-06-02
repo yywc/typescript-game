@@ -26,7 +26,7 @@ export class Land extends Sprite {
 
   draw() {
     this.landX += this.landSpeed
-    if (this.landX > (this.img.width - Director.getInstance().width)) {
+    if (this.landX > (this.img.width - DataStore.getInstance().canvas.width)) {
       this.landX = 0
     }
     this.x = -this.landX

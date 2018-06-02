@@ -80,7 +80,12 @@ export class Director {
       // 结束加分
       score.isScore = false
       score.scoreNumber++
-      this.dataStore.isStory = false
+      wx.vibrateShort({
+        success: function () {
+          console.log('震动成功')
+        }
+      })
+      // this.dataStore.isStory = false
       // if (score.scoreNumber === 5) {
       //   this.dataStore.canvas.classList.remove('canvas')
       // }
@@ -117,7 +122,7 @@ export class Director {
       // if (this.dataStore.isStory) {
       //   this.dataStore.get('story').draw()
       // }
-
+      //
       // if (this.dataStore.get('score').scoreNumber === 5) {
       //   this.dataStore.get('birds').drawOther()
       // }
@@ -130,6 +135,7 @@ export class Director {
       this.dataStore.get('startButton').draw()
       cancelAnimationFrame(this.dataStore.get('animationTimer'))
       this.dataStore.destroy()
+      wx.triggerGC()
     }
   }
 }
