@@ -1,2 +1,26 @@
-# wx-game — flappy bird
-在微信小游戏的边缘第一次试探
+# 前言
+
+用 TypeScript 重构的 Flappy Bird 游戏，主要参考慕课网课程——[微信小游戏入门与实战 引爆朋友圈](https://coding.imooc.com/learn/list/183.html)。
+
+## 相关技能
+
++ 面向对象思想
++ webpack4 打包
++ typescript 的使用
++ js/ts 中的 eslint 配置
+
+## 打开方式
+
+```shell
+git clone git@github.com:yywc/wx-game.git
+cd path/wx-game
+npm install
+// 开发环境
+npm run dev
+// 生产环境
+npm run build && npm run start
+```
+
+## 搭建开发环境
+
+writing...

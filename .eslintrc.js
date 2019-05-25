@@ -1,19 +1,30 @@
 module.exports = {
   root: true,
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    parser: 'babel-eslint'
+    ecmaVersion: 6,
+    sourceType: 'module',
+    project: './tsconfig.json',
+    tsconfigRootDir: './',
   },
   env: {
     browser: true,
+    node: true,
+    es6: true,
   },
-  "extends": "standard",
+  extends: ['airbnb-base', 'plugin:@typescript-eslint/recommended'],
+  plugins: ['@typescript-eslint'],
+  settings: {
+    'import/resolver': {
+      webpack: {
+        config: 'build/webpack.base.conf.js',
+      },
+    },
+  },
   rules: {
-    // allow async-await
-    'generator-star-spacing': 'off',
-    // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'space-before-function-paren': 'off',
-    'indent': 'off',
-    'indent-legacy': ['error', +2, { 'SwitchCase': 1 }]
+    '@typescript-eslint/indent': ['error', 2],
+    'lines-between-class-members': 0,
+    'no-underscore-dangle': 0,
+    'no-restricted-syntax': 0,
   }
 };
