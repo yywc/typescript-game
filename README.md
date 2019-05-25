@@ -12,8 +12,8 @@
 ## 打开方式
 
 ```shell
-git clone git@github.com:yywc/wx-game.git
-cd path/wx-game
+git clone git@github.com:yywc/ts-game.git
+cd path/ts-game
 npm install
 // 开发环境
 npm run dev

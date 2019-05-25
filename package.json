@@ -1,8 +1,8 @@
 {
-  "name": "wx-game",
+  "name": "ts-game",
   "version": "2.0.0",
   "private": true,
-  "description": "wx-game",
+  "description": "a h5 game coding by typescript",
   "main": "src/Index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --progress --config build/webpack.dev.conf.js",
