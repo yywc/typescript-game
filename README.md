@@ -1,6 +1,6 @@
 # 前言
 
-用 TypeScript 重构的 Flappy Bird 游戏，主要参考慕课网课程——[微信小游戏入门与实战 引爆朋友圈](https://coding.imooc.com/learn/list/183.html)。
+用 TypeScript 重构的 Flappy Bird 游戏，主要参考慕课网课程——[微信小游戏入门与实战 引爆朋友圈](https://coding.imooc.com/class/183.html)。
 
 ## 相关技能
 

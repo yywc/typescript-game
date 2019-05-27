@@ -7,13 +7,13 @@ module.exports = merge(config, {
   bail: true, // 出现错误立即停止打包
   devtool: 'cheap-module-source-map', // 代码追踪
   plugins: [
-    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin(), // 清空 dist 目录
     new HtmlWebpackPlugin({
-      template: 'index.html',
+      template: 'index.html', // 模板为根目录下的 index.html
       minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeAttributeQuotes: true,
+        removeComments: true, // 移除注释
+        collapseWhitespace: true, // 压缩空格
+        removeAttributeQuotes: true, // 移除属性引号
       },
     }),
   ],

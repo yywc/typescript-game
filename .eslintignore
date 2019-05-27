@@ -1,3 +1,6 @@
+# 根目录下 js
 /*.js
+# build 目录
 /build
+# dist 目录
 /dist
