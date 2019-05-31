@@ -7,16 +7,21 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --progress --config build/webpack.dev.conf.js",
     "build": "cross-env NODE_ENV=production webpack --config build/webpack.prod.conf.js",
-    "start": "http-server dist"
+    "start": "http-server dist",
+    "commit": "git-cz"
   },
   "keywords": [],
   "author": "yywc",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/cli": "^7.6.1",
+    "@commitlint/config-conventional": "^7.6.0",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "clean-webpack-plugin": "^2.0.2",
+    "commitizen": "^3.1.1",
     "cross-env": "^5.2.0",
+    "cz-conventional-changelog": "^2.1.0",
     "eslint": "^5.16.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-import-resolver-webpack": "^0.11.1",
@@ -26,6 +31,7 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "html-webpack-plugin": "^3.2.0",
     "http-server": "^0.11.1",
+    "husky": "^2.3.0",
     "ts-loader": "^6.0.1",
     "typescript": "^3.4.5",
     "url-loader": "^1.1.2",
@@ -37,5 +43,15 @@
   "engines": {
     "node": ">= 8.0.0",
     "npm": ">= 5.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -e $GIT_PARAMS"
+    }
   }
 }
