@@ -1,8 +1,8 @@
 /**
  * 陆地类
  */
-import Sprite from '@/module/base/Sprite';
-import Director from '@/module/Director';
+import Sprite from '@/modules/base/Sprite';
+import Director from '@/modules/Director';
 
 export default class Land extends Sprite {
   private landX: number;

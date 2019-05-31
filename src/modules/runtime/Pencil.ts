@@ -1,8 +1,8 @@
 /**
  * 铅笔的基类
  */
-import Sprite from '@/module/base/Sprite';
-import Director from '@/module/Director';
+import Sprite from '@/modules/base/Sprite';
+import Director from '@/modules/Director';
 
 export default class Pencil extends Sprite {
   protected top: number;

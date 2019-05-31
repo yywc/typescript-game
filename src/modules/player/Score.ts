@@ -1,7 +1,7 @@
 /**
  * 计分器类
  */
-import DataStore from '@/module/base/DataStore';
+import DataStore from '@/modules/base/DataStore';
 
 export default class Score {
   private ctx: CanvasRenderingContext2D = DataStore.getInstance().ctx;

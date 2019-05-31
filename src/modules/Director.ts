@@ -1,10 +1,10 @@
 /**
  * 导演类，控制游戏的逻辑
  */
-import DataStore from '@/module/base/DataStore';
-import PencilUp from '@/module/runtime/PencilUp';
-import PencilDown from '@/module/runtime/PencilDown';
-import { BorderOffset } from '@/type/Index';
+import DataStore from '@/modules/base/DataStore';
+import PencilUp from '@/modules/runtime/PencilUp';
+import PencilDown from '@/modules/runtime/PencilDown';
+import { BorderOffset } from '@/types/Index';
 
 export default class Director {
   private static instance: Director;

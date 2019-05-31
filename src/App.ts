@@ -1,3 +1,3 @@
-import Main from '@/module/Main';
+import Main from '@/modules/Main';
 
 new Main();

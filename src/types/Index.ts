@@ -2,8 +2,8 @@
  * 定义复杂类型
  */
 
-import Birds from '@/module/player/Birds';
-import Score from '@/module/player/Score';
+import Birds from '@/modules/player/Birds';
+import Score from '@/modules/player/Score';
 import Painter from '@/interfaces/Painter';
 
 /**

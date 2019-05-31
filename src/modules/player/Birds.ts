@@ -1,8 +1,8 @@
 /**
  * 小鸟类，循环渲染三只小鸟
  */
-import Sprite from '@/module/base/Sprite';
-import DataStore from '@/module/base/DataStore';
+import Sprite from '@/modules/base/Sprite';
+import DataStore from '@/modules/base/DataStore';
 import BirdsProperty from '@/interfaces/BirdsProperty';
 
 export default class Birds extends Sprite implements BirdsProperty {

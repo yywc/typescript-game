@@ -2,7 +2,7 @@
  * 上半部分铅笔
  */
 import Pencil from './Pencil';
-import Sprite from '@/module/base/Sprite';
+import Sprite from '@/modules/base/Sprite';
 
 export default class UpPencil extends Pencil {
   public constructor(top: number) {

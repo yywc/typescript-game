@@ -2,7 +2,7 @@
  * 变量缓存器，方便我们在不同的类中访问和修改变量
  */
 
-import { DataStoreSet, DataStoreGet } from '@/type/Index';
+import { DataStoreSet, DataStoreGet } from '@/types/Index';
 
 export default class DataStore {
   private static instance: DataStore;

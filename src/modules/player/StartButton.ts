@@ -1,7 +1,7 @@
 /**
  * 开始按钮类
  */
-import Sprite from '@/module/base/Sprite';
+import Sprite from '@/modules/base/Sprite';
 
 export default class StartButton extends Sprite {
   public constructor() {

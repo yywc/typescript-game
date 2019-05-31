@@ -1,7 +1,7 @@
 /**
  * 背景类
  */
-import Sprite from '@/module/base/Sprite';
+import Sprite from '@/modules/base/Sprite';
 
 export default class BackGround extends Sprite {
   public constructor() {

@@ -1,14 +1,14 @@
 /**
  * 初始化整个游戏的精灵，作为游戏开始的入口
  */
-import Land from '@/module//runtime/Land';
-import Director from '@/module//Director';
-import Birds from '@/module//player/Birds';
-import Score from '@/module//player/Score';
-import DataStore from '@/module/base/DataStore';
-import BackGround from '@/module//runtime/BackGround';
-import StartButton from '@/module/player/StartButton';
-import ResourceLoader from '@/module/base/ResourceLoader';
+import Land from '@/modules//runtime/Land';
+import Director from '@/modules//Director';
+import Birds from '@/modules//player/Birds';
+import Score from '@/modules//player/Score';
+import DataStore from '@/modules/base/DataStore';
+import BackGround from '@/modules//runtime/BackGround';
+import StartButton from '@/modules/player/StartButton';
+import ResourceLoader from '@/modules/base/ResourceLoader';
 
 export default class Main {
   private readonly canvas = document.getElementById('canvas') as HTMLCanvasElement;
