@@ -1,46 +1,26 @@
 /**
- * 小鸟类
- * 循环渲染三只小鸟，其实是循环渲染图片的三个部分
+ * 小鸟类，循环渲染三只小鸟
  */
 import Sprite from '@/module/base/Sprite';
 import DataStore from '@/module/base/DataStore';
-import Director from '@/module/Director';
+import BirdsProperty from '@/interfaces/BirdsProperty';
 
-interface BirdsConfig {
-  clippingX: number[];
-  clippingY: number[];
-  clippingWidth: number[];
-  clippingHeight: number[];
-  birdsWidth: number[];
-  birdsHeight: number[];
-  birdsX: number[];
-  birdsY: number[];
-  originY: number[];
-  time: number;
-  index: number;
-  count: number;
-  birdX: number;
-  birdSpeed: number;
-}
-
-export default class Birds extends Sprite implements BirdsConfig {
-  public clippingX: number[];
-  public clippingY: number[];
-  public clippingWidth: number[];
-  public clippingHeight: number[];
-  public birdsWidth: number[];
-  public birdsHeight: number[];
-  public birdsX: number[];
-  public birdsY: number[];
-  public originY: number[];
+export default class Birds extends Sprite implements BirdsProperty {
+  public readonly clippingXList: number[];
+  public readonly clippingYList: number[];
+  public readonly clippingWidthList: number[];
+  public readonly clippingHeightList: number[];
+  public readonly birdsWidthList: number[];
+  public readonly birdsHeightList: number[];
+  public readonly birdsXList: number[];
+  public readonly birdsYList: number[];
+  public readonly originYList: number[];
   public time: number;
   public index: number;
   public count: number;
-  public birdX: number;
-  public birdSpeed: number;
 
   public constructor() {
-    const image: HTMLImageElement = Sprite.getImage('birds');
+    const image = Sprite.getImage('birds');
     super(
       image,
       0,
@@ -49,39 +29,33 @@ export default class Birds extends Sprite implements BirdsConfig {
       image.height,
       0,
       0,
-      image.width,
-      image.height,
+      window.innerWidth,
+      window.innerHeight,
     );
+
     this.ctx = DataStore.getInstance().ctx;
     // 小鸟的三种状态用数组去存储
-    const _birdWidth = 34;
-    const _birdHeight = 24;
-    const _birdX: number = window.innerWidth / 4;
-    const _birdY: number = window.innerHeight / 2;
+    const birdWidth = 34;
+    const birdHeight = 24;
+    const birdX = window.innerWidth / 4;
+    const birdY = window.innerHeight / 2;
     // 小鸟宽 34，高 24，上下边距 10，左右边距 9
-    this.clippingX = [
+    this.clippingXList = [
       9,
       9 + 34 + 18,
       9 + 34 + 18 + 34 + 18,
     ];
-    this.clippingY = [10, 10, 10];
-    this.clippingWidth = [_birdWidth, _birdWidth, _birdWidth];
-    this.clippingHeight = [_birdHeight, _birdHeight, _birdHeight];
-    this.birdsWidth = [_birdWidth, _birdWidth, _birdWidth];
-    this.birdsHeight = [_birdHeight, _birdHeight, _birdHeight];
-    this.birdsX = [_birdX, _birdX, _birdX];
-    this.birdsY = [_birdY, _birdY, _birdY];
-    // 小鸟 y 坐标
-    this.originY = [_birdY, _birdY, _birdY];
-    // 小鸟下落时间
-    this.time = 0;
-    // 判断小鸟是第几只
-    this.index = 0;
-    // 循环小鸟个数
-    this.count = 0;
-
-    this.birdX = 0;
-    this.birdSpeed = Director.getInstance().moveSpeed;
+    this.clippingYList = [10, 10, 10];
+    this.clippingWidthList = [birdWidth, birdWidth, birdWidth];
+    this.clippingHeightList = [birdHeight, birdHeight, birdHeight];
+    this.birdsWidthList = [birdWidth, birdWidth, birdWidth];
+    this.birdsHeightList = [birdHeight, birdHeight, birdHeight];
+    this.birdsXList = [birdX, birdX, birdX];
+    this.birdsYList = [birdY, birdY, birdY];
+    this.originYList = [birdY, birdY, birdY]; // 小鸟 y 坐标
+    this.time = 0; // 小鸟下落时间
+    this.index = 0; // 判断小鸟是第几只
+    this.count = 0; // 循环小鸟个数
   }
 
   public draw(): void {
@@ -101,20 +75,20 @@ export default class Birds extends Sprite implements BirdsConfig {
     const offsetY = (g * this.time * (this.time - offsetUp)) / 2;
 
     for (let i = 0; i < 3; i += 1) {
-      this.birdsY[i] = this.originY[i] + offsetY;
+      this.birdsYList[i] = this.originYList[i] + offsetY;
     }
     this.time += 1;
 
     super.draw(
-      this.img,
-      this.clippingX[this.index],
-      this.clippingY[this.index],
-      this.clippingWidth[this.index],
-      this.clippingHeight[this.index],
-      this.birdsX[this.index],
-      this.birdsY[this.index],
-      this.birdsWidth[this.index],
-      this.birdsHeight[this.index],
+      this.image,
+      this.clippingXList[this.index],
+      this.clippingYList[this.index],
+      this.clippingWidthList[this.index],
+      this.clippingHeightList[this.index],
+      this.birdsXList[this.index],
+      this.birdsYList[this.index],
+      this.birdsWidthList[this.index],
+      this.birdsHeightList[this.index],
     );
   }
 }

@@ -5,7 +5,7 @@ import Sprite from '@/module/base/Sprite';
 import Director from '@/module/Director';
 
 export default class Pencil extends Sprite {
-  public top: number;
+  protected top: number;
 
   public constructor(image: HTMLImageElement, top: number) {
     super(
@@ -23,7 +23,8 @@ export default class Pencil extends Sprite {
   }
 
   public draw(): void {
-    this.x -= Director.getInstance().moveSpeed;
+    this.dx -= Director.getInstance().moveSpeed;
+    // 参数为断言成 DrawImgParams 的空对象
     super.draw();
   }
 }

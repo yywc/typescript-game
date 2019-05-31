@@ -5,7 +5,7 @@ import Sprite from '@/module/base/Sprite';
 
 export default class BackGround extends Sprite {
   public constructor() {
-    const image: HTMLImageElement = Sprite.getImage('background');
+    const image = Sprite.getImage('background');
     super(
       image,
       0,
@@ -14,7 +14,6 @@ export default class BackGround extends Sprite {
       image.height,
       0,
       0,
-      // 使用图片的大小
       window.innerWidth,
       window.innerHeight,
     );

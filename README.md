@@ -7,13 +7,13 @@
 + 面向对象思想
 + webpack4 打包
 + typescript 的使用
-+ js/ts 中的 eslint 配置
++ typescript 开发环境配置
 
 ## 打开方式
 
 ```shell
 git clone git@github.com:yywc/ts-game.git
-cd path/ts-game
+cd your path/ts-game
 npm install
 // 开发环境
 npm run dev

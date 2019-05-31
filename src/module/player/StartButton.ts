@@ -5,7 +5,7 @@ import Sprite from '@/module/base/Sprite';
 
 export default class StartButton extends Sprite {
   public constructor() {
-    const image: HTMLImageElement = Sprite.getImage('startButton');
+    const image = Sprite.getImage('startButton');
     super(
       image,
       0,

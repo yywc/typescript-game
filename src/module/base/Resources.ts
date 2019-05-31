@@ -1,6 +1,5 @@
 /**
- * 资源文件
- * @type {*[]}
+ * 图片资源文件
  */
 import Background from '@/assets/background.png';
 import Birds from '@/assets/birds.png';

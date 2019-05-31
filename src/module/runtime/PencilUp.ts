@@ -6,12 +6,11 @@ import Sprite from '@/module/base/Sprite';
 
 export default class UpPencil extends Pencil {
   public constructor(top: number) {
-    const image: HTMLImageElement = Sprite.getImage('pencilUp');
-    super(image, top);
+    super(Sprite.getImage('pencilUp'), top);
   }
 
   public draw(): void {
-    this.y = this.top - this.height;
+    this.dy = this.top - this.dHeight;
     super.draw();
   }
 }

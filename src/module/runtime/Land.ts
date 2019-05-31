@@ -5,11 +5,11 @@ import Sprite from '@/module/base/Sprite';
 import Director from '@/module/Director';
 
 export default class Land extends Sprite {
-  public landX: number;
-  public landSpeed: number;
+  private landX: number;
+  private readonly landSpeed: number;
 
   public constructor() {
-    const image: HTMLImageElement = Sprite.getImage('land');
+    const image = Sprite.getImage('land');
     super(
       image,
       0,
@@ -18,9 +18,8 @@ export default class Land extends Sprite {
       image.height,
       0,
       window.innerHeight - image.height,
-      // 使用图片的大小
       image.width,
-      image.height,
+      image.height
     );
     this.landX = 0;
     this.landSpeed = Director.getInstance().moveSpeed;
@@ -28,10 +27,10 @@ export default class Land extends Sprite {
 
   public draw(): void {
     this.landX += this.landSpeed;
-    if (this.landX > (this.img.width - window.innerWidth)) {
+    if (this.landX > this.image.width - window.innerWidth) {
       this.landX = 0;
     }
-    this.x = -this.landX;
+    this.dx = -this.landX;
     super.draw();
   }
 }

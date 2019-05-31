@@ -2,45 +2,36 @@
  * 变量缓存器，方便我们在不同的类中访问和修改变量
  */
 
-class DataStoreConfig {
-  public canvas?: HTMLCanvasElement;
-  public ctx?: CanvasRenderingContext2D;
-  public res?: Map<string, HTMLImageElement>;
-}
+import { DataStoreSet, DataStoreGet } from '@/type/Index';
 
-export default class DataStore extends DataStoreConfig {
-  private static _instance: DataStore;
-  public map: Map<string, any>;
+export default class DataStore {
+  private static instance: DataStore;
+  private readonly map: Map<string, any> = new Map();
+  [key: string]: any;
 
   public static getInstance(): DataStore {
-    if (!DataStore._instance) {
-      DataStore._instance = new DataStore();
+    if (!DataStore.instance) {
+      DataStore.instance = new DataStore();
     }
-    return DataStore._instance;
+    return DataStore.instance;
   }
 
-  private constructor() {
-    super();
-    this.map = new Map();
-  }
-
-  public put(key: string, value: any): DataStore {
-    let mapValue = value;
+  public set(key: string, value: DataStoreSet): DataStore {
+    let mapValue: any = value;
     if (typeof value === 'function') {
-      // eslint-disable-next-line new-cap
       mapValue = new value();
     }
     this.map.set(key, mapValue);
     return this;
   }
 
-  public get(key: string): any {
+  public get(key: string): DataStoreGet {
     return this.map.get(key);
   }
 
   public destroy(): void {
-    for (let value of this.map) {
-      value = null;
+    for (const key of this.map.keys()) {
+      this.map.set(key, null);
     }
   }
 }

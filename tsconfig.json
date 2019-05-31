@@ -1,18 +1,29 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "./", // 解析非相对模块名的基准目录
+    // 模块名到基于 baseUrl的路径映射的列表
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
-    "allowJs": true,
-    "module": "ES6",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "target": "ESNext",
+    "module": "ESNext", // 当前语言
+    "noUnusedLocals": true, // 若有未使用的局部变量则抛错
+    "noUnusedParameters": true, // 若有未使用的参数则抛错
+    "outDir": "./dist", // 生成文件放入 dist 目录
+    "removeComments": true, // 移除注释
+    "strict": true, // 启用严格模式
+    "target": "ES6", // 转化成的目标语言
+    // 要包含的类型声明文件路径列表
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
+  // 打包 src 目录下的文件
   "include": [
     "src"
   ],
+  // 排除 node_modules 目录下的文件
   "exclude": [
     "node_modules"
   ]

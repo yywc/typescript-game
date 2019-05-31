@@ -11,43 +11,38 @@ import StartButton from '@/module/player/StartButton';
 import ResourceLoader from '@/module/base/ResourceLoader';
 
 export default class Main {
-  public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
-  public dataStore: DataStore;
-  public director: Director;
+  private readonly canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  private readonly ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+  private readonly dataStore = DataStore.getInstance();
+  private readonly director = Director.getInstance();
 
   public constructor() {
-    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext('2d');
-    this.dataStore = DataStore.getInstance();
-    this.director = Director.getInstance();
     this.onResourceFirstLoaded();
   }
 
-  public async onResourceFirstLoaded(): Promise<void> {
-    let res: Map<string, HTMLImageElement>;
+  private async onResourceFirstLoaded(): Promise<void> {
+    let res: Map<string, HTMLImageElement> = new Map();
     try {
-      [res] = await ResourceLoader.create().onLoaded();
+      [res] = await ResourceLoader.getInstance().onLoaded();
     } catch (e) {
       console.error(`Promise Error: ${e}`);
     }
     // 给 dataStore 赋值，这些不需要重新生成的
     this.dataStore.ctx = this.ctx;
-    this.dataStore.canvas = this.canvas;
     this.dataStore.res = res;
     this.init();
   }
 
-  public init(): void {
+  private init(): void {
     // 控制游戏是否结束
     this.director.isGameOver = false;
     this.dataStore
-      .put('background', BackGround)
-      .put('land', Land)
-      .put('pencils', [])
-      .put('birds', Birds)
-      .put('startButton', StartButton)
-      .put('score', Score);
+      .set('background', BackGround)
+      .set('land', Land)
+      .set('pencils', [])
+      .set('birds', Birds)
+      .set('startButton', StartButton)
+      .set('score', Score);
     this.registerEvent();
     // 在游戏开始前创建第一组铅笔
     this.director.createPencil();
@@ -55,7 +50,7 @@ export default class Main {
     this.director.run();
   }
 
-  public registerEvent(): void {
+  private registerEvent(): void {
     this.canvas.addEventListener('touchstart', (e: Event): void => {
       e.preventDefault();
       if (this.director.isGameOver) {

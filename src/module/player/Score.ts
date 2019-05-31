@@ -4,15 +4,9 @@
 import DataStore from '@/module/base/DataStore';
 
 export default class Score {
-  public ctx: CanvasRenderingContext2D;
-  public scoreNumber: number;
-  public isScore: boolean;
-
-  public constructor() {
-    this.ctx = DataStore.getInstance().ctx;
-    this.scoreNumber = 0;
-    this.isScore = true;
-  }
+  private ctx: CanvasRenderingContext2D = DataStore.getInstance().ctx;
+  public scoreNumber: number = 0;
+  public isScore: boolean = true;
 
   public draw(): void {
     this.ctx.font = '25px Arial';
