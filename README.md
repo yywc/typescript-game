@@ -1,6 +1,4 @@
-# 搭建环境
-
-## 准备
+## 搭建环境
 
 + node 版本: 8.x 以上
 + npm 版本: 5.x 以上
@@ -123,6 +121,25 @@ module.exports = {
 
 ### .eslintrc.js
 
+使用 prettier + eslint 的方法规范代码，安装 prettier 相关的依赖
+
+```shell
+npm install -D eslint-config-prettier eslint-plugin-prettier
+npm install -D --save-exact prettier // 准确安装 prettier 版本，防止以后出现风格问题
+```
+
+同时在目录下新建 .prettierrc.js 文件，用来设置 prettier 的格式化风格
+
+```js
+module.exports = {
+  singleQuote: true, //字符串是否使用单引号，默认为false，使用双引号
+  trailingComma: 'es5', //是否使用尾逗号，有三个可选值"<none|es5|all>"
+  printWidth: 90, // 格式化代码换行时的最大宽度
+};
+```
+
+再编写 .eslintrc.js 文件
+
 ```js
 module.exports = {
   root: true, // 设置为 true .eslintrc 查找到此处不会继续往上查找
@@ -139,104 +156,18 @@ module.exports = {
     node: true,
     es6: true,
   },
-  extends: ['airbnb-base', 'plugin:@typescript-eslint/recommended'], // 配置 eslint 校验规则
-  plugins: ['@typescript-eslint'], // eslint 输出规则
-  settings: {
-    // 解决使用 @ 符号 import 时 eslint 报错
-    'import/resolver': {
-      webpack: {
-        config: 'build/webpack.base.conf.js',
-      },
-    },
-  },
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'prettier/@typescript-eslint',
+  ], // 配置 eslint 校验规则
+  plugins: ['prettier', '@typescript-eslint'], // eslint 输出规则
   // 自定义规则
   rules: {
+    'prettier/prettier': 'error',
     '@typescript-eslint/indent': ['error', 2], // 缩进改为2个空格
-    'lines-between-class-members': 0, // 关闭类中成员空行校验
-    'no-underscore-dangle': 0, // 关闭下划线校验
-    'no-restricted-syntax': 0, // 主要是 for of 的使用校验
-  }
-};
-```
-
-### index.html
-
-```html
-<!doctype html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible"
-        content="ie=edge">
-  <link href="/favicon.ico"
-        rel="shortcut icon">
-  <title>Flappy Bird</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-  </style>
-  <script>
-    // 页面加载完成后设置 canvas 为全屏
-    window.onload = function () {
-      document.getElementById('canvas').setAttribute('width', window.innerWidth);
-      document.getElementById('canvas').setAttribute('height', window.innerHeight);
-    }
-  </script>
-</head>
-
-<body>
-  <canvas id="canvas"></canvas>
-</body>
-
-</html>
-```
-
-### tsconfig.json
-
-```json
-{
-  "compilerOptions": {
-    "baseUrl": "./", // 解析非相对模块名的基准目录
-    // 模块名到基于 baseUrl的路径映射的列表
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
-    "module": "ESNext", // 当前语言
-    "noUnusedLocals": true, // 若有未使用的局部变量则抛错
-    "noUnusedParameters": true, // 若有未使用的参数则抛错
-    "outDir": "./dist", // 生成文件放入 dist 目录
-    "removeComments": true, // 移除注释
-    "strict": true, // 启用严格模式
-    "target": "ES6", // 转化成的目标语言
-    // 要包含的类型声明文件路径列表
-    "typeRoots": [
-      "node_modules/@types"
-    ]
   },
-  // 打包 src 目录下的文件
-  "include": [
-    "src"
-  ],
-  // 排除 node_modules 目录下的文件
-  "exclude": [
-    "node_modules"
-  ]
-}
+};
 ```
 
 更多配置可以自行查看 [typescript 项目配置](https://www.tslang.cn/docs/handbook/tsconfig-json.html)。
@@ -255,6 +186,7 @@ module.exports = {
   "dev": "cross-env NODE_ENV=development webpack-dev-server --progress --config build/webpack.dev.conf.js",
   "build": "cross-env NODE_ENV=production webpack --config build/webpack.prod.conf.js",
   "start": "http-server dist",
+  "eslint": "eslint src --ext .ts --fix",
   "commit": "git-cz",
 },
 "config": {
@@ -264,6 +196,7 @@ module.exports = {
 },
 "husky": {
   "hooks": {
+    "pre-commit": "npm run eslint",
     "commit-msg": "commitlint -e $GIT_PARAMS"
   }
 }
