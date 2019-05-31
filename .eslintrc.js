@@ -13,19 +13,15 @@ module.exports = {
     node: true,
     es6: true,
   },
-  extends: ['plugin:@typescript-eslint/recommended'], // 配置 eslint 校验规则
-  plugins: ['@typescript-eslint'], // eslint 输出规则
-  settings: {
-    // 解决使用 @ 符号 import 时 eslint 报错
-    'import/resolver': {
-      webpack: {
-        config: 'build/webpack.base.conf.js',
-      },
-    },
-  },
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'prettier/@typescript-eslint',
+  ], // 配置 eslint 校验规则
+  plugins: ['prettier', '@typescript-eslint'], // eslint 输出规则
   // 自定义规则
   rules: {
+    'prettier/prettier': 'error',
     '@typescript-eslint/indent': ['error', 2], // 缩进改为2个空格
-    'lines-between-class-members': 0, // 关闭类中成员空行校验
-  }
+  },
 };
