@@ -15,7 +15,7 @@ export default class Score {
       this.scoreNumber.toString(),
       window.innerWidth / 2,
       window.innerHeight / 22,
-      1000,
+      1000
     );
   }
 }

@@ -80,10 +80,7 @@ export default class Director {
       return;
     }
 
-    if (
-      score.isScore &&
-      birds.birdsXList[0] >= pencils[0].dx + pencils[0].dWidth
-    ) {
+    if (score.isScore && birds.birdsXList[0] >= pencils[0].dx + pencils[0].dWidth) {
       // 结束加分
       score.isScore = false;
       score.scoreNumber += 1;
@@ -121,9 +118,7 @@ export default class Director {
       this.dataStore.get('birds').draw();
 
       // 跑动动画
-      this.dataStore.animationTimer = requestAnimationFrame(
-        (): void => this.run()
-      );
+      this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
     } else {
       console.log('游戏结束');
       this.dataStore.get('startButton').draw();

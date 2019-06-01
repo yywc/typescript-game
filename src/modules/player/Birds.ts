@@ -30,7 +30,7 @@ export default class Birds extends Sprite implements BirdsProperty {
       0,
       0,
       window.innerWidth,
-      window.innerHeight,
+      window.innerHeight
     );
 
     this.ctx = DataStore.getInstance().ctx;
@@ -40,11 +40,7 @@ export default class Birds extends Sprite implements BirdsProperty {
     const birdX = window.innerWidth / 4;
     const birdY = window.innerHeight / 2;
     // 小鸟宽 34，高 24，上下边距 10，左右边距 9
-    this.clippingXList = [
-      9,
-      9 + 34 + 18,
-      9 + 34 + 18 + 34 + 18,
-    ];
+    this.clippingXList = [9, 9 + 34 + 18, 9 + 34 + 18 + 34 + 18];
     this.clippingYList = [10, 10, 10];
     this.clippingWidthList = [birdWidth, birdWidth, birdWidth];
     this.clippingHeightList = [birdHeight, birdHeight, birdHeight];
@@ -88,7 +84,7 @@ export default class Birds extends Sprite implements BirdsProperty {
       this.birdsXList[this.index],
       this.birdsYList[this.index],
       this.birdsWidthList[this.index],
-      this.birdsHeightList[this.index],
+      this.birdsHeightList[this.index]
     );
   }
 }

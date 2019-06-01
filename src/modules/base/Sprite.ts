@@ -17,7 +17,7 @@ export default class Sprite implements Painter {
   public dHeight: number;
 
   public static getImage(key: string): HTMLImageElement {
-    return DataStore.getInstance().res.get(key) as HTMLImageElement;
+    return DataStore.getInstance().res.get(key);
   }
 
   public constructor(
@@ -29,7 +29,7 @@ export default class Sprite implements Painter {
     dx = 0,
     dy = 0,
     dWidth = 0,
-    dHeight = 0,
+    dHeight = 0
   ) {
     this.ctx = DataStore.getInstance().ctx;
     this.image = image;
@@ -52,18 +52,8 @@ export default class Sprite implements Painter {
     dx = this.dx,
     dy = this.dy,
     dWidth = this.dWidth,
-    dHeight = this.dHeight,
+    dHeight = this.dHeight
   ): void {
-    this.ctx.drawImage(
-      image,
-      sx,
-      sy,
-      sWidth,
-      sHeight,
-      dx,
-      dy,
-      dWidth,
-      dHeight,
-    );
+    this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
   }
 }

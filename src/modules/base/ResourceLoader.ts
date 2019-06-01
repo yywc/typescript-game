@@ -11,11 +11,13 @@ export default class ResourceLoader {
     const imageStringMap = new Map(Resources);
     let img: HTMLImageElement;
 
-    imageStringMap.forEach((value: string, key: string): void => {
-      img = new Image();
-      img.src = value;
-      this.map.set(key, img);
-    });
+    imageStringMap.forEach(
+      (value: string, key: string): void => {
+        img = new Image();
+        img.src = value;
+        this.map.set(key, img);
+      }
+    );
   }
 
   public static getInstance(): ResourceLoader {
@@ -30,13 +32,17 @@ export default class ResourceLoader {
     const pr: PromiseMap[] = [];
     let p: PromiseMap;
 
-    this.map.forEach((img: HTMLImageElement): void => {
-      p = new Promise((resolve, reject): void => {
-        img.onload = (): void => resolve(this.map);
-        img.onerror = (): void => reject(new Error('Could not load image '));
-      });
-      pr.push(p);
-    });
+    this.map.forEach(
+      (img): void => {
+        p = new Promise(
+          (resolve, reject): void => {
+            img.onload = (): void => resolve(this.map);
+            img.onerror = (): void => reject(new Error('Could not load image '));
+          }
+        );
+        pr.push(p);
+      }
+    );
     // 图片全部加载完
     return Promise.all(pr);
   }

@@ -17,7 +17,7 @@ export default class Pencil extends Sprite {
       window.innerWidth,
       0,
       image.width,
-      image.height,
+      image.height
     );
     this.top = top;
   }

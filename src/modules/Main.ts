@@ -12,7 +12,6 @@ import ResourceLoader from '@/modules/base/ResourceLoader';
 
 export default class Main {
   private readonly canvas = document.getElementById('canvas') as HTMLCanvasElement;
-  private readonly ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
   private readonly dataStore = DataStore.getInstance();
   private readonly director = Director.getInstance();
 
@@ -28,7 +27,7 @@ export default class Main {
       console.error(`Promise Error: ${e}`);
     }
     // 给 dataStore 赋值，这些不需要重新生成的
-    this.dataStore.ctx = this.ctx;
+    this.dataStore.ctx = this.canvas.getContext('2d');
     this.dataStore.res = res;
     this.init();
   }
@@ -51,14 +50,17 @@ export default class Main {
   }
 
   private registerEvent(): void {
-    this.canvas.addEventListener('touchstart', (e: Event): void => {
-      e.preventDefault();
-      if (this.director.isGameOver) {
-        console.log('游戏开始');
-        this.init();
-      } else {
-        this.director.birdsEvent();
+    this.canvas.addEventListener(
+      'touchstart',
+      (e: Event): void => {
+        e.preventDefault();
+        if (this.director.isGameOver) {
+          console.log('游戏开始');
+          this.init();
+        } else {
+          this.director.birdsEvent();
+        }
       }
-    });
+    );
   }
 }

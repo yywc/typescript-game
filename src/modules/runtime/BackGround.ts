@@ -15,7 +15,7 @@ export default class BackGround extends Sprite {
       0,
       0,
       window.innerWidth,
-      window.innerHeight,
+      window.innerHeight
     );
   }
 }
