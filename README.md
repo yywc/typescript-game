@@ -1,11 +1,11 @@
-## 搭建环境
+## 1. 搭建环境
 
 + node 版本: 8.x 以上
 + npm 版本: 5.x 以上
 + webpack: 4.x 以上
 + typescript: 3.x 以上
 
-### webpack 相关依赖安装
+### 1.1 webpack 相关依赖安装
 
 ```shell
 npm install -D webpack webpack-cli webpack-dev-server webpack-merge typescript ts-loader url-loader file-loader html-webpack-plugin clean-webpack-plugin
@@ -13,7 +13,7 @@ npm install -D webpack webpack-cli webpack-dev-server webpack-merge typescript t
 
 具体每个包的功能不在这里赘述，感兴趣的同学可以参考我的[Webpack4 从零开始搭建 Vue 环境](https://github.com/yywc/webpack-app)。
 
-### eslint 相关依赖安装
+### 1.2 eslint 相关依赖安装
 
 ```shell
 npm install -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-config-airbnb-base eslint-friendly-formatter eslint-import-resolver-webpack eslint-loader eslint-plugin-import
@@ -21,7 +21,7 @@ npm install -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint
 
 由于本项目的第一版是用 js 编写的微信小程序项目，所以这里就不用 babel 转换成 es5 了，直接 es6 跑在浏览器（chrome）里就行。
 
-## 搭建脚手架
+## 2. 搭建脚手架
 
 整个项目目录结构如下：
 
@@ -45,9 +45,9 @@ ts-game
 └── tsconfig.json
 ```
 
-## 编写各个部分
+## 3. 编写各个部分
 
-### webpack.base.conf.js
+### 3.1 webpack.base.conf.js
 
 ```js
 const path = require('path');
@@ -108,7 +108,7 @@ module.exports = {
 
 ```
 
-### .eslintignore
+### 3.2 .eslintignore
 
 ```none
 # 根目录下 js
@@ -119,7 +119,7 @@ module.exports = {
 /dist
 ```
 
-### .eslintrc.js
+### 3.3 .eslintrc.js
 
 使用 prettier + eslint 的方法规范代码，安装 prettier 相关的依赖
 
@@ -172,7 +172,7 @@ module.exports = {
 
 更多配置可以自行查看 [typescript 项目配置](https://www.tslang.cn/docs/handbook/tsconfig-json.html)。
 
-### package.json
+### 3.4 package.json
 
 这里多安装几个依赖：
 
