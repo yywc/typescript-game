@@ -28,4 +28,7 @@ npm run build && npm run start
 
 ## 3. 开发步骤
 
+可以对应分支查看每一个步骤的具体实现。
+
 + [搭建开发环境](https://github.com/yywc/ts-game/blob/step-1/README.md)
++ [绘制背景图片](https://github.com/yywc/ts-game/blob/step-2/README.md)
