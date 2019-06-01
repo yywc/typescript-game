@@ -1,40 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <title>Flappy Bird</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible"
-        content="ie=edge">
-  <link href="/favicon.ico"
-        rel="shortcut icon">
-  <title>Flappy Bird</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-  </style>
-  <script>
-    // 页面加载完成后设置 canvas 为全屏
-    window.onload = function () {
-      document.getElementById('canvas').setAttribute('width', window.innerWidth);
-      document.getElementById('canvas').setAttribute('height', window.innerHeight);
-    }
-  </script>
-</head>
-
-<body>
-  <canvas id="canvas"></canvas>
-</body>
-
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+      const canvas = document.getElementById('canvas');
+      canvas.setAttribute('width', window.innerWidth);
+      canvas.setAttribute('height', window.innerHeight);
+    </script>
+  </body>
 </html>

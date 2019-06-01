@@ -1,215 +1,434 @@
-## 搭建环境
+## 1. 背景图绘制
 
-+ node 版本: 8.x 以上
-+ npm 版本: 5.x 以上
-+ webpack: 4.x 以上
-+ typescript: 3.x 以上
+在搭建好开发环境之后，这一节主要的功能时实现背景图的绘制。
 
-### webpack 相关依赖安装
+## 2. 准备工作
 
-```shell
-npm install -D webpack webpack-cli webpack-dev-server webpack-merge typescript ts-loader url-loader file-loader html-webpack-plugin clean-webpack-plugin
+在开始写代码前，我们先设计一下整体项目结构。
+
+src
+├── assets // 放置资源文件
+├── interfaces // 接口定义
+├─┬ modules // 游戏内容
+│ ├── base // 通用类
+│ ├── runtime // 游戏运行时的精灵
+│ ├── Director.ts // 控制游戏流程和逻辑
+│ ├── Main.ts // 项目主体，初始化 canvas 和添加事件等
+└── types // 定义类型
+
+## 3. 资源准备
+
+首先就所有（包括以后会用到的图片）一起放置到 `assets` 目录下，然后在 App.ts 中 import Main.ts，并初始化，开始调用 Main.ts 里的内容。
+
+### 3.1 App.ts
+
+```ts
+import Main from './modules/Main';
+
+new Main();
 ```
 
-具体每个包的功能不在这里赘述，感兴趣的同学可以参考我的[Webpack4 从零开始搭建 Vue 环境](https://github.com/yywc/webpack-app)。
+游戏是建立在 canvas 上的，所有我们需要 png 图片来创建 Image 对象，进行绘制。
 
-### eslint 相关依赖安装
+创建一个 `interfaces/Painter.ts` 来定义 canvas 的 `getContext().drawImage()` 方法参数的约束，同时也需要创建一个 `modules/base/Resource.ts` 文件，引入所有的图片。
 
-```shell
-npm install -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-config-airbnb-base eslint-friendly-formatter eslint-import-resolver-webpack eslint-loader eslint-plugin-import
+### 3.2 Painter.ts
+
+```ts
+/**
+ * @interface Painter canvas 画图接口
+ * @param image 传入Image对象
+ * @param sx 要剪裁的起始X坐标
+ * @param sy 要剪裁的起始Y坐标
+ * @param sWidth 剪裁的宽度
+ * @param sHeight 剪裁的高度
+ * @param dx 放置的x坐标
+ * @param dy 放置的y坐标
+ * @param dWidth 要使用的宽度
+ * @param dHeight 要使用的高度
+ * @function draw CanvasRenderingContext2D.drawImage()
+ */
+export default interface Painter {
+  image: HTMLImageElement;
+  sx: number;
+  sy: number;
+  sWidth: number;
+  sHeight: number;
+  dx: number;
+  dy: number;
+  dWidth: number;
+  dHeight: number;
+
+  // 设置为可选是因为在实现的时候解构赋值了默认值
+  draw(
+    image?: HTMLImageElement,
+    sx?: number,
+    sy?: number,
+    sWidth?: number,
+    sHeight?: number,
+    dx?: number,
+    dy?: number,
+    dWidth?: number,
+    dHeight?: number
+  ): void;
+}
 ```
 
-由于本项目的第一版是用 js 编写的微信小程序项目，所以这里就不用 babel 转换成 es5 了，直接 es6 跑在浏览器（chrome）里就行。
+### 3.3 Resource.ts
 
-## 搭建脚手架
+```ts
+import Background from '@/assets/background.png';
+import Birds from '@/assets/birds.png';
+import Land from '@/assets/land.png';
+import PieDown from '@/assets/pie_down.png';
+import PieUp from '@/assets/pie_up.png';
+import StartButton from '@/assets/start_button.png';
 
-整个项目目录结构如下：
-
-```none
-ts-game
-├─┬ build
-│ ├── webpack.base.conf.js
-│ ├── webpack.dev.conf.js
-│ ├── webpack.prod.conf.js
-├── src
-│ ├── assets
-│ ├── interfaces
-│ ├── modules
-│ ├── types
-│ ├── App.ts
-├── .eslintignore
-├── .eslintrc.js
-├── .favicon.ico
-├── index.html
-├── package.json
-└── tsconfig.json
+/**
+ * 图片资源文件，定义类型为全部只读的数组，传递给 Map 对象当参数
+ */
+const resource: readonly (readonly [string, string])[] = [
+  ['background', Background],
+  ['land', Land],
+  ['pencilUp', PieUp],
+  ['pencilDown', PieDown],
+  ['birds', Birds],
+  ['startButton', StartButton],
+];
+export default resource;
 ```
 
-## 编写各个部分
+在编写上述代码后，会发现 import 处会报错，原因是 ts 不认识 png 是 module，所以我们在 `types` 下新建一个 `image.d.ts` 来声明 png 是模块。
 
-### webpack.base.conf.js
+### 3.4 image.d.ts
 
-```js
-const path = require('path');
-
-// 路径处理函数
-const resolve = dir => path.resolve(__dirname, '../', dir);
-
-// 根据环境判断是否使用 eslint，只在开发环境校验
-const isUseEslint = process.env.NODE_ENV === 'development'
-  ? [{
-    test: /\.ts$/,
-    loader: 'eslint-loader',
-    enforce: 'pre',
-    include: resolve('src'),
-    options: {
-      formatter: require('eslint-friendly-formatter'), // eslint 友好提示
-      quiet: true,
-    },
-  }]
-  : [];
-
-// 主配置
-module.exports = {
-  mode: process.env.NODE_ENV, // webpack 模式，会根据值进行不同的内置优化
-  entry: './src/App', // 入口文件
-  output: {
-    path: resolve('dist'), // 输出路径
-    filename: '[name].[hash].js', // 输出文件名
-  },
-  resolve: {
-    extensions: ['.ts', '.js'], // import 时可以省略 js、ts 的后缀名
-    alias: {
-      '@': resolve('src'), // @ 指向 src
-    },
-  },
-  module: {
-    rules: [
-      ...isUseEslint, // eslint 规则
-      {
-        // ts 处理
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        include: resolve('src'),
-      },
-      {
-        // png 图片处理
-        test: /\.png?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 2048, // 小于 2kb 则打包成 base64
-          name: 'images/[name].[ext]',
-        },
-        include: resolve('src/assets'),
-      },
-    ],
-  },
-};
-
+```ts
+declare module '*.png';
 ```
 
-### .eslintignore
+## 4. 绘制背景实现
 
-```none
-# 根目录下 js
-/*.js
-# build 目录
-/build
-# dist 目录
-/dist
-```
++ 绘制背景我们大概需要 `Main.ts` 来初始化 canvas 获得 2dContext 对象，设置图片；
++ 需要一个资源加载类 `ResourceLoader.ts` 来将 png 模块与 Image 对象建立联系；
++ 通过 `Director.ts` 来绘制图片，操作游戏开始；
++ 设置一个数据仓库 `DataStore.ts` 来存放我们对象之间需要共享的数据；
++ 需要一个精灵类 `Sprite.ts` 来实现 `Painter.ts` 接口，并实现图片绘制；
++ 需要不同的精灵子类实现不同的精灵，当前步骤主要是背景精灵 `Background.ts`；
 
-### .eslintrc.js
+创建 `modules/base/ResourceLoader.ts`、`modules/Director.ts`、`nodules/base/DataStore.ts`，并利用单例模式创建对象，单例模式保证了这些对象在运行中只会有一个对象存在。
 
-使用 prettier + eslint 的方法规范代码，安装 prettier 相关的依赖
+```ts
+export default class Xyz {
+  private static instance: Xyz; // 私有静态变量，返回的是 Xyz 实例。Xyz 是上述三种
+  [key: string]: any; // 如果是 DataStore.ts 则加上索引签名，方便我们在外部挂载数据，其他的不用
 
-```shell
-npm install -D eslint-config-prettier eslint-plugin-prettier
-npm install -D --save-exact prettier // 准确安装 prettier 版本，防止以后出现风格问题
-```
-
-同时在目录下新建 .prettierrc.js 文件，用来设置 prettier 的格式化风格
-
-```js
-module.exports = {
-  singleQuote: true, //字符串是否使用单引号，默认为false，使用双引号
-  trailingComma: 'es5', //是否使用尾逗号，有三个可选值"<none|es5|all>"
-  printWidth: 90, // 格式化代码换行时的最大宽度
-};
-```
-
-再编写 .eslintrc.js 文件
-
-```js
-module.exports = {
-  root: true, // 设置为 true .eslintrc 查找到此处不会继续往上查找
-  parser: '@typescript-eslint/parser', // eslint 解析器
-  parserOptions: {
-    ecmaVersion: 6, // 指定 es 版本
-    sourceType: 'module', // 设置代码为 es 模块
-    project: './tsconfig.json', // tsconfig.json 路径（@typescript-eslint/parser 配置）
-    tsconfigRootDir: './', // tsconfig.json 根路径（@typescript-eslint/parser 配置）
-  },
-  env: {
-    // 设置运行环境为以下三种
-    browser: true,
-    node: true,
-    es6: true,
-  },
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'prettier/@typescript-eslint',
-  ], // 配置 eslint 校验规则
-  plugins: ['prettier', '@typescript-eslint'], // eslint 输出规则
-  // 自定义规则
-  rules: {
-    'prettier/prettier': 'error',
-    '@typescript-eslint/indent': ['error', 2], // 缩进改为2个空格
-  },
-};
-```
-
-更多配置可以自行查看 [typescript 项目配置](https://www.tslang.cn/docs/handbook/tsconfig-json.html)。
-
-### package.json
-
-这里多安装几个依赖：
-
-+ cross-env：跨平台设置 NODE_ENV 的环境变量
-+ http-server：打包完成后的静态资源开启服务器预览
-+ @commitlint/cli、cz-conventional-changelog：规范化 git commit
-+ @commitlint/config-conventional、husky：强制 git 校验
-
-```json
-"scripts": {
-  "dev": "cross-env NODE_ENV=development webpack-dev-server --progress --config build/webpack.dev.conf.js",
-  "build": "cross-env NODE_ENV=production webpack --config build/webpack.prod.conf.js",
-  "start": "http-server dist",
-  "eslint": "eslint src --ext .ts --fix",
-  "commit": "git-cz",
-},
-"config": {
-  "commitizen": {
-    "path": "node_modules/cz-conventional-changelog"
-  }
-},
-"husky": {
-  "hooks": {
-    "pre-commit": "npm run eslint",
-    "commit-msg": "commitlint -e $GIT_PARAMS"
+  public static getInstance(): Xyz { // 在外部通过 Xyz.getInstance() 方法获得实例
+    if (!Xyz.instance) {
+      Xyz.instance = new Xyz();
+    }
+    return Xyz.instance;
   }
 }
 ```
 
-然后在根目录下创建 `.commitlintrc.js` 文件，用来定义我们的 commit 校验规则。
+### 4.1 Main.ts
 
-```js
-module.exports = {
-  extends: ['@commitlint/config-conventional'],
-};
+创建 `modules/Main.ts`。
+
+```ts
+import ResourceLoader from './base/ResourceLoader';
+import DataStore from './base/DataStore';
+import Director from './Director';
+import Background from './runtime/Background';
+
+export default class Main {
+  // 设置为私有只读，断言成 HTMLCanvasElement
+  // ById 方法可能取不到正确的 dom 出现 undefined，但是我们这里知道肯定能取到 dom 元素的。
+  private readonly canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  private readonly dataStore = DataStore.getInstance(); // 获取 DataStore 实例
+  private readonly director = Director.getInstance(); // 获取 Director 实例
+
+  /**
+   * 定义公有是 App.ts 中使用 new 初始化了对象，一般不需要在外部调用的我们统一设置成 private
+   */
+  public constructor() {
+    // 加载资源
+    this.onLoadResource();
+  }
+
+  // 加载资源涉及到 image.onload 事件，所以肯定是异步函数，这里不需要返回值，所以是 Promise<void>
+  private async onLoadResource(): Promise<void> {
+    let res: Map<String, HTMLImageElement> = new Map(); // 存放资源对象的 Map 对象
+    try {
+      /**
+       * @todo 在 ResourceLoader 中实现 onLoad 函数返回一个 Image 加载完成后的 Map 数组
+       */
+      [res] = ResourceLoader.getInstance().onLoad();
+    } catch(e) {
+      console.error(`Promise Error: ${e}`);
+    }
+    // dataStore 挂载共享数据
+    this.dataStore.ctx = this.canvas.getContext('2d');
+    this.dataStore.res = res;
+    // 初始化
+    this.init();
+  }
+
+  private init(): void {
+    /**
+     * @todo 在 dataStore 和 director 中分别实现
+     */
+    this.dataStore.set('background', Background);
+    this.director.run();
+  }
+}
 ```
 
-这样我们通过 `npm run dev` 启动开发环境，通过 `npm run build` 来打包，最后通过 `npm run start` 启动服务器即可看到我们打包后的项目。
+### 4.2 ResourceLoader.ts
 
-接下来开始项目主体部分的编写。
+```ts
+import resource from './Resource';
+
+export default class ResourceLoader {
+  private static instance: ResourceLoader;
+  // 存储所有的图片
+  private readonly map: Map<string, HTMLImageElement> = new Map();
+
+  // 不需要在外部初始化，设置为私有
+  private constructor() {
+    const imageMap = new Map(resource); // 获得 key 为图片名，value 为路径的图片字符串 Map 对象
+    let img: HTMLImageElement; // 声明 img 为 HTMLImageElement 对象类型
+
+    // 这里 imageMap 的类型推断可以推断出 value 和 key 的类型，我们不需要额外声明
+    imageMap.forEach((value, key): void => {
+      img = new Image();
+      img.src = value;
+      this.map.set(key, img);
+    })
+  }
+
+  public static getInstance(): ResourceLoader {
+    if (!ResourceLoader.instance) {
+      ResourceLoader.instance = new ResourceLoader();
+    }
+    return ResourceLoader.instance;
+  }
+
+  public onLoad(): Promise<Map<string, HTMLImageElement>[]> {
+    type PromiseMap = Promise<Map<string, HTMLImageElement>;
+    const pr: PromiseMap[] = []; // 存放所有图片加载的 Promise
+    let p: PromiseMap;
+
+    this.map.forEach((img): void => {
+      p = new Promise((reject, resolve): void => {
+        img.onload = (): void => resolve(this.map); // 将已经 onload 的含有本张图片的 map resolve 出去
+        img.onerror = (): void => reject(new Error('Could not load image '));
+      });
+      pr.push(p);
+    })
+    // 加载所有的 img
+    return Promise.all(pr);
+  }
+}
+```
+
+### 4.3 Director.ts
+
+```ts
+import DataStore from './base/DataStore';
+
+export default class Director {
+  private static instance: Director;
+  private dataStore: DataStore = DataStore.getInstance();
+
+  public static getInstance(): Director {
+    if (!Director.instance) {
+      Director.instance = new Director();
+    }
+    return Director.instance;
+  }
+
+  /**
+   * run 控制游戏开始
+   */
+  public run(): void {
+    /**
+     * @todo 在 dataStore 里实现
+     */
+    this.dataStore.get('background').draw();
+    console.log('游戏开始');
+  }
+}
+```
+
+### 4.4 DataStore.ts
+
+在写 `DataStore.ts` 之前，我们回想一下，之前在调用 set get 方法的时候，我们并没有对参数和获得的值限定类型，那么在此之前，我们先来限定一下加入的类型。
+
+在这里来看，只添加了一个 Background 类型，但是在后面的步骤中会有一些其他的类型加入进来，所以我们创建一个 `types/Index.ts` 文件，来规范一下我们 set 的类型和 get 的类型。
+
+```ts
+import Painter from '@/interfaces/Painter';
+
+/**
+ * 定义复杂类型
+ */
+
+/**
+ * @type DataStoreSet 联合类型（之后会有更多类型，先这样定义出来）
+ * @typedef (new()=>Painter) 实现 Painter 接口的构造器
+ */
+export type DataStoreSet = new () => Painter;
+
+/**
+ * @type DataStoreGet 交叉类型（之后会有更多类型，先这样定义出来），获取时包含所有值的对象与方法
+ * @typedef Painter Painter 对象，包含 Background 等资源对象
+ */
+export type DataStoreGet = Painter;
+```
+
+再开始编写 `DataStore.ts` 文件。
+
+```ts
+import { DataStoreGet, DataStoreSet } from '@/types/Index'; // 引入类型文件
+
+export default class DataStore {
+  private static instance: DataStore;
+   // 存放的值设置为 any 类型，我们只对 set get 时进行校验
+  private readonly map: Map<string, any> = new Map();
+  [key: string]: any; // 通过外部挂载的数据
+
+  public static getInstance(): DataStore {
+    if (!DataStore.instance) {
+      DataStore.instance = new DataStore();
+    }
+    return DataStore.instance;
+  }
+
+  public set(key: string, value: DataStoreSet): DataStore {
+    let mapValue: any = value;
+    // 如果是构造函数，则构造对象，否则直接设置到 map
+    if (typeof value === 'function') {
+      mapValue = new value();
+    }
+    this.map.set(key, mapValue);
+    return this; // return this 方便链式调用
+  }
+
+  public get(key: string): DataStoreGet {
+    return this.map.get(key);
+  }
+}
+```
+
+### 4.5 Sprite.ts & Background.ts
+
+创建 `modules/base/Sprite.ts` 和 `modules/runtime/Background.ts`。
+
+上面的主要步骤已经完成的差不多了，剩下最关键的部件，就是从 dataStore 里 get 到数据后的 draw 方法，绘制到 canvas 上面。
+
+这里主要是两个部分，一个是精灵基类 `Sprite.ts` 实现 `Painter.ts` 接口，并提供 draw 方法，子类继承自此，可以实现自己不同的 draw 方法，绘制不同的效果。
+
+#### Sprite.ts
+
+```ts
+import Painter from '@/interfaces/Painter';
+import DataStore from './DataStore';
+
+export default class Sprite implements Painter {
+  public ctx: CanvasRenderingContext2D = DataStore.getInstance().ctx;
+  public image: HTMLImageElement;
+  public sx: number;
+  public sy: number;
+  public sWidth: number;
+  public sHeight: number;
+  public dx: number;
+  public dy: number;
+  public dWidth: number;
+  public dHeight: number;
+
+  public constructor(
+    image = new Image(),
+    sx = 0,
+    sy = 0,
+    sWidth = 0,
+    sHeight = 0,
+    dx = 0,
+    dy = 0,
+    dWidth = 0,
+    dHeight = 0
+  ) {
+    this.ctx = DataStore.getInstance().ctx;
+    this.image = image;
+    this.sx = sx;
+    this.sy = sy;
+    this.sWidth = sWidth;
+    this.sHeight = sHeight;
+    this.dx = dx;
+    this.dy = dy;
+    this.dWidth = dWidth;
+    this.dHeight = dHeight;
+  }
+
+  // 从 dataStore 的 res 中取出 Image 图片对象，方便在子类中获取图片
+  public static getImage(key: string): HTMLImageElement {
+    return DataStore.getInstance().res.get(key) as HTMLImageElement;
+  }
+
+  public draw(
+    image = this.image,
+    sx = this.sx,
+    sy = this.sy,
+    sWidth = this.sWidth,
+    sHeight = this.sHeight,
+    dx = this.dx,
+    dy = this.dy,
+    dWidth = this.dWidth,
+    dHeight = this.dHeight
+  ): void {
+    // 调用 CanvasRenderingContext2D 对象的 draw 方法进行绘制
+    this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+  }
+}
+```
+
+#### Background.ts
+
+```ts
+import Sprite from '../base/Sprite';
+
+/**
+ * 背景类，绘制整个游戏背景图
+ */
+export default class Background extends Sprite {
+  public constructor() {
+    // 通过 Sprite.getImage() 从 dataStore 的 res 对象中取得 Image 对象
+    const image = Sprite.getImage('background');
+    // 调用父类构造器，传入参数，从而使得父类的 draw
+    // 再通过 .draw() 方法就能绘制图片了
+    super(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      0,
+      0,
+      window.innerWidth,
+      window.innerHeight
+    );
+  }
+}
+```
+
+## 5. 回顾
+
+我们来回顾一下绘制背景图的操作。
+
+1. App.ts 实例化 Main.ts 开始启动游戏（new Main()）；
+2. Main.ts 通过 ResourceLoader.ts 加载资源存储到 DataStore(this.dataStore.res) 上，再借用 Director.ts 操作游戏流程与绘制精灵(this.director.run())；
+3. Director.ts 操作精灵子类绘制不同精灵(extends 和 draw())；
+
+其他部分都是对这个主要流程的补充。如 `interfaces/Painter.ts` 约束好 `Sprite.ts` 的参数；`types/Index.ts` 定义全局的一些类型约束我们参数的类型或者返回值的类型；`Resource.ts` 集合我们所需要的资源数据；
+
+绘制背景图的步骤有点多，很多步骤属于事先定义好，将来会扩展的操作，所以在后面的步骤中会方便很多，游戏主体已经差不多形成了，剩下的就是绘制其他精灵，已经游戏逻辑的控制。
