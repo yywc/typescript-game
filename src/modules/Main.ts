@@ -2,6 +2,7 @@ import ResourceLoader from './base/ResourceLoader';
 import DataStore from './base/DataStore';
 import Director from './Director';
 import Background from './runtime/Background';
+import Land from './runtime/Land';
 
 /**
  * Main 主体类，游戏启动入口
@@ -28,7 +29,7 @@ export default class Main {
   }
 
   private init(): void {
-    this.dataStore.set('background', Background);
+    this.dataStore.set('background', Background).set('land', Land);
     this.director.run();
   }
 }

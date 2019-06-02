@@ -16,6 +16,13 @@ export default class Director {
    */
   public run(): void {
     this.dataStore.get('background').draw();
+    this.dataStore.get('land').draw();
+    // this.dataStore.animationTimer = requestAnimationFrame(
+    //   (): void => {
+    //     this.run();
+    //   }
+    // );
+    // cancelAnimationFrame(this.dataStore.animationTimer);
     console.log('游戏开始');
   }
 }

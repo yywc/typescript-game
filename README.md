@@ -142,6 +142,7 @@ import ResourceLoader from './base/ResourceLoader';
 import DataStore from './base/DataStore';
 import Director from './Director';
 import Background from './runtime/Background';
+import Land from './runtime/Land';
 
 export default class Main {
   // 设置为私有只读，断言成 HTMLCanvasElement
@@ -180,7 +181,7 @@ export default class Main {
     /**
      * @todo 在 dataStore 和 director 中分别实现
      */
-    this.dataStore.set('background', Background);
+    this.dataStore.set('background', Background).set('land', Land);
     this.director.run();
   }
 }
@@ -258,6 +259,15 @@ export default class Director {
      * @todo 在 dataStore 里实现
      */
     this.dataStore.get('background').draw();
+    this.dataStore.get('land').draw();
+    // 让精灵开始移动
+    // this.dataStore.animationTimer = requestAnimationFrame(
+    //   (): void => {
+    //     this.run();
+    //   }
+    // );
+    // 当游戏结束时停止精灵的移动，暂时不做相关逻辑
+    // cancelAnimationFrame(this.dataStore.animationTimer);
     console.log('游戏开始');
   }
 }
@@ -284,7 +294,7 @@ export type DataStoreSet = new () => Painter;
 
 /**
  * @type DataStoreGet 交叉类型（之后会有更多类型，先这样定义出来），获取时包含所有值的对象与方法
- * @typedef Painter Painter 对象，包含 Background 等资源对象
+ * @typedef Painter Painter 对象，包含 Background、Land 等资源对象
  */
 export type DataStoreGet = Painter;
 ```
@@ -323,13 +333,13 @@ export default class DataStore {
 }
 ```
 
-### 4.5 Sprite.ts & Background.ts
+### 4.5 Sprite.ts & Background.ts & Land.ts
 
-创建 `modules/base/Sprite.ts` 和 `modules/runtime/Background.ts`。
+创建 `modules/base/Sprite.ts`、`modules/runtime/Background.ts`、`modules/runtime/Land.ts`。
 
 上面的主要步骤已经完成的差不多了，剩下最关键的部件，就是从 dataStore 里 get 到数据后的 draw 方法，绘制到 canvas 上面。
 
-这里主要是两个部分，一个是精灵基类 `Sprite.ts` 实现 `Painter.ts` 接口，并提供 draw 方法，子类继承自此，可以实现自己不同的 draw 方法，绘制不同的效果。
+这里主要是两个部分，一个是精灵基类 `Sprite.ts` 实现 `Painter.ts` 接口，并提供 draw 方法，子类继承自此，可以实现自己不同的 draw 方法，实现不同的裁剪以及绘制位置。
 
 #### Sprite.ts
 
@@ -422,6 +432,59 @@ export default class Background extends Sprite {
   }
 }
 ```
+
+#### Land.ts
+
+```ts
+import Sprite from '@/modules/base/Sprite';
+
+/**
+ * 陆地类
+ */
+
+export default class Land extends Sprite {
+  private landX: number;
+  private landSpeed: number;
+
+  public constructor() {
+    const image = Sprite.getImage('land');
+    super(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      0,
+      window.innerHeight - image.height, // 放置在画布的底部
+      image.width,
+      image.height
+    );
+    this.landX = 0;
+    this.landSpeed = 2; // 陆地移动速度
+  }
+
+  public draw(): void {
+    this.landX += this.landSpeed;
+    // 陆地滚动即将超出屏幕时置为0，重新滚动
+    if (this.landX > this.image.width - window.innerWidth) {
+      this.landX = 0;
+    }
+    super.draw(
+      this.image,
+      this.sx,
+      this.sy,
+      this.sWidth,
+      this.sHeight,
+      -this.landX, // 陆地要从右往左移动
+      this.dy,
+      this.dWidth,
+      this.dHeight
+    );
+  }
+}
+```
+
+![陆地位置图](https://github.com/yywc/ts-game/blob/step-3/doc/introduction.png)
 
 ## 5. 回顾
 
