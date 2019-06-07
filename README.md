@@ -1,285 +1,116 @@
-## 1. 背景图绘制
+## 1. Pencil 组绘制
 
-在搭建好开发环境之后，这一节主要的功能时实现背景图的绘制。
+pencil 出现时分为上下一对，也就是两根铅笔为1组，这里先定义一个 Pencil 基类，然后各自用上下子类来继承自父类绘制。
 
-## 2. 准备工作
+## 2. Pencil 父类
 
-在开始写代码前，我们先设计一下整体项目结构。
+定义一个 Pencil 的父类，实现基本的铅笔绘制，具体位置的实现由子类完成。
 
-```none
-src
-├── assets // 放置资源文件
-├── interfaces // 接口定义
-├─┬ modules // 游戏内容
-│ ├── base // 通用类
-│ ├── runtime // 游戏运行时的精灵
-│ ├── Director.ts // 控制游戏流程和逻辑
-│ ├── Main.ts // 项目主体，初始化 canvas 和添加事件等
-└── types // 定义类型
-```
+由于铅笔也是需要不断移动和创建的过程，速度与陆地移动一致，所以我们将陆地类的速度保存到 `Director.ts` 中作为常量使用。
 
-## 3. 资源准备
+```typescript
+import Sprite from '@/modules/base/Sprite';
+import Director from '@/modules/Director';
 
-首先就所有（包括以后会用到的图片）一起放置到 `assets` 目录下，然后在 App.ts 中 import Main.ts，并初始化，开始调用 Main.ts 里的内容。
-
-### 3.1 App.ts
-
-```ts
-import Main from './modules/Main';
-
-new Main();
-```
-
-游戏是建立在 canvas 上的，所有我们需要 png 图片来创建 Image 对象，进行绘制。
-
-创建一个 `interfaces/Painter.ts` 来定义 canvas 的 `getContext().drawImage()` 方法参数的约束，同时也需要创建一个 `modules/base/Resource.ts` 文件，引入所有的图片。
-
-### 3.2 Painter.ts
-
-```ts
-/**
- * @interface Painter canvas 画图接口
- * @param image 传入Image对象
- * @param sx 要剪裁的起始X坐标
- * @param sy 要剪裁的起始Y坐标
- * @param sWidth 剪裁的宽度
- * @param sHeight 剪裁的高度
- * @param dx 放置的x坐标
- * @param dy 放置的y坐标
- * @param dWidth 要使用的宽度
- * @param dHeight 要使用的高度
- * @function draw CanvasRenderingContext2D.drawImage()
- */
-export default interface Painter {
-  image: HTMLImageElement;
-  sx: number;
-  sy: number;
-  sWidth: number;
-  sHeight: number;
-  dx: number;
-  dy: number;
-  dWidth: number;
-  dHeight: number;
-
-  // 设置为可选是因为在实现的时候解构赋值了默认值
-  draw(
-    image?: HTMLImageElement,
-    sx?: number,
-    sy?: number,
-    sWidth?: number,
-    sHeight?: number,
-    dx?: number,
-    dy?: number,
-    dWidth?: number,
-    dHeight?: number
-  ): void;
-}
-```
-
-### 3.3 Resource.ts
-
-```ts
-import Background from '@/assets/background.png';
-import Birds from '@/assets/birds.png';
-import Land from '@/assets/land.png';
-import PieDown from '@/assets/pie_down.png';
-import PieUp from '@/assets/pie_up.png';
-import StartButton from '@/assets/start_button.png';
-
-/**
- * 图片资源文件，定义类型为全部只读的数组，传递给 Map 对象当参数
- */
-const resource: readonly (readonly [string, string])[] = [
-  ['background', Background],
-  ['land', Land],
-  ['pencilUp', PieUp],
-  ['pencilDown', PieDown],
-  ['birds', Birds],
-  ['startButton', StartButton],
-];
-export default resource;
-```
-
-在编写上述代码后，会发现 import 处会报错，原因是 ts 不认识 png 是 module，所以我们在 `types` 下新建一个 `image.d.ts` 来声明 png 是模块。
-
-### 3.4 image.d.ts
-
-```ts
-declare module '*.png';
-```
-
-## 4. 绘制背景实现
-
-+ 绘制背景我们大概需要 `Main.ts` 来初始化 canvas 获得 2dContext 对象，设置图片；
-+ 需要一个资源加载类 `ResourceLoader.ts` 来将 png 模块与 Image 对象建立联系；
-+ 通过 `Director.ts` 来绘制图片，操作游戏开始；
-+ 设置一个数据仓库 `DataStore.ts` 来存放我们对象之间需要共享的数据；
-+ 需要一个精灵类 `Sprite.ts` 来实现 `Painter.ts` 接口，并实现图片绘制；
-+ 需要不同的精灵子类实现不同的精灵，当前步骤主要是背景精灵 `Background.ts`；
-
-创建 `modules/base/ResourceLoader.ts`、`modules/Director.ts`、`nodules/base/DataStore.ts`，并利用单例模式创建对象，单例模式保证了这些对象在运行中只会有一个对象存在。
-
-```ts
-export default class Xyz {
-  private static instance: Xyz; // 私有静态变量，返回的是 Xyz 实例。Xyz 是上述三种
-  [key: string]: any; // 如果是 DataStore.ts 则加上索引签名，方便我们在外部挂载数据，其他的不用
-
-  public static getInstance(): Xyz { // 在外部通过 Xyz.getInstance() 方法获得实例
-    if (!Xyz.instance) {
-      Xyz.instance = new Xyz();
-    }
-    return Xyz.instance;
-  }
-}
-```
-
-### 4.1 Main.ts
-
-创建 `modules/Main.ts`。
-
-```ts
-import ResourceLoader from './base/ResourceLoader';
-import DataStore from './base/DataStore';
-import Director from './Director';
-import Background from './runtime/Background';
-import Land from './runtime/Land';
-
-export default class Main {
-  // 设置为私有只读，断言成 HTMLCanvasElement
-  // ById 方法可能取不到正确的 dom 出现 undefined，但是我们这里知道肯定能取到 dom 元素的。
-  private readonly canvas = document.getElementById('canvas') as HTMLCanvasElement;
-  private readonly dataStore = DataStore.getInstance(); // 获取 DataStore 实例
-  private readonly director = Director.getInstance(); // 获取 Director 实例
+export default class Pencil extends Sprite {
+  protected top: number;
 
   /**
-   * 定义公有是 App.ts 中使用 new 初始化了对象，一般不需要在外部调用的我们统一设置成 private
+   * @constructor
+   * @param image 子类实现获取上下铅笔
+   * @param top 铅笔与顶部的距离，计算 dy，生产长短不一的铅笔组
    */
-  public constructor() {
-    // 加载资源
-    this.onLoadResource();
+  public constructor(image: HTMLImageElement, top: number) {
+    super(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      window.innerWidth, // 绘制在屏幕外
+      0,
+      image.width,
+      image.height
+    );
+    this.top = top;
   }
 
-  // 加载资源涉及到 image.onload 事件，所以肯定是异步函数，这里不需要返回值，所以是 Promise<void>
-  private async onLoadResource(): Promise<void> {
-    let res: Map<String, HTMLImageElement> = new Map(); // 存放资源对象的 Map 对象
-    try {
-      /**
-       * @todo 在 ResourceLoader 中实现 onLoad 函数返回一个 Image 加载完成后的 Map 数组
-       */
-      [res] = ResourceLoader.getInstance().onLoad();
-    } catch(e) {
-      console.error(`Promise Error: ${e}`);
-    }
-    // dataStore 挂载共享数据
-    this.dataStore.ctx = this.canvas.getContext('2d');
-    this.dataStore.res = res;
-    // 初始化
-    this.init();
-  }
-
-  private init(): void {
-    /**
-     * @todo 在 dataStore 和 director 中分别实现
-     */
-    this.dataStore.set('background', Background).set('land', Land);
-    this.director.run();
+  public draw(): void {
+    // 不断移动的 x。
+    // ？留一个疑问，一直往左，铅笔对象不是越来越多了吗？（后面有说明）
+    this.dx -= Director.moveSpeed;
+    super.draw();
   }
 }
 ```
 
-### 4.2 ResourceLoader.ts
 
-```ts
-import resource from './Resource';
 
-export default class ResourceLoader {
-  private static instance: ResourceLoader;
-  // 存储所有的图片
-  private readonly map: Map<string, HTMLImageElement> = new Map();
+## 3. PencilUp 上铅笔
 
-  // 不需要在外部初始化，设置为私有
-  private constructor() {
-    const imageMap = new Map(resource); // 获得 key 为图片名，value 为路径的图片字符串 Map 对象
-    let img: HTMLImageElement; // 声明 img 为 HTMLImageElement 对象类型
+上铅笔继承自铅笔父类，需要处理的只有铅笔 image 对象以及绘制长短。
 
-    // 这里 imageMap 的类型推断可以推断出 value 和 key 的类型，我们不需要额外声明
-    imageMap.forEach((value, key): void => {
-      img = new Image();
-      img.src = value;
-      this.map.set(key, img);
-    })
+```typescript
+import Pencil from '@/modules/runtime/Pencil';
+import Sprite from '@/modules/base/Sprite';
+
+export default class PencilUp extends Pencil {
+  public constructor(top: number) {
+    super(Sprite.getImage('pencilUp'), top);
   }
 
-  public static getInstance(): ResourceLoader {
-    if (!ResourceLoader.instance) {
-      ResourceLoader.instance = new ResourceLoader();
-    }
-    return ResourceLoader.instance;
-  }
-
-  public onLoad(): Promise<Map<string, HTMLImageElement>[]> {
-    type PromiseMap = Promise<Map<string, HTMLImageElement>;
-    const pr: PromiseMap[] = []; // 存放所有图片加载的 Promise
-    let p: PromiseMap;
-
-    this.map.forEach((img): void => {
-      p = new Promise((reject, resolve): void => {
-        img.onload = (): void => resolve(this.map); // 将已经 onload 的含有本张图片的 map resolve 出去
-        img.onerror = (): void => reject(new Error('Could not load image '));
-      });
-      pr.push(p);
-    })
-    // 加载所有的 img
-    return Promise.all(pr);
+  public draw(): void {
+    this.dy = this.top - this.dHeight; // top 值 - 图片值，其实结果就是图片往上偏移的值
+    super.draw();
   }
 }
 ```
 
-### 4.3 Director.ts
+##  4. PencilDown 下铅笔
 
-```ts
-import DataStore from './base/DataStore';
+下铅笔与上铅笔类似，唯一的区别是绘制下铅笔时，中间要留一个宽度让小鸟飞过，多一个 gap 值。
 
-export default class Director {
-  private static instance: Director;
-  private dataStore: DataStore = DataStore.getInstance();
+```typescript
+import Pencil from '@/modules/runtime/Pencil';
+import Sprite from '@/modules/base/Sprite';
 
-  public static getInstance(): Director {
-    if (!Director.instance) {
-      Director.instance = new Director();
-    }
-    return Director.instance;
+export default class PencilDown extends Pencil {
+  public constructor(top: number) {
+    super(Sprite.getImage('pencilDown'), top);
   }
 
-  /**
-   * run 控制游戏开始
-   */
-  public run(): void {
-    /**
-     * @todo 在 dataStore 里实现
-     */
-    this.dataStore.get('background').draw();
-    this.dataStore.get('land').draw();
-    // 让精灵开始移动
-    // this.dataStore.animationTimer = requestAnimationFrame(
-    //   (): void => {
-    //     this.run();
-    //   }
-    // );
-    // 当游戏结束时停止精灵的移动，暂时不做相关逻辑
-    // cancelAnimationFrame(this.dataStore.animationTimer);
-    console.log('游戏开始');
+  public draw(): void {
+    // gap 值，屏幕高度的一部分，根据自己喜好调整，值越大游戏越容易
+    const gapBetweenTwoPencils = window.innerHeight / 8;
+    // 最终下铅笔（我们可以看到）的高度，top 的值加上 gap 值
+    this.dy = this.top + gapBetweenTwoPencils;
+    super.draw();
   }
 }
 ```
 
-### 4.4 DataStore.ts
+## 5. 绘制铅笔组
 
-在写 `DataStore.ts` 之前，我们回想一下，之前在调用 set get 方法的时候，我们并没有对参数和获得的值限定类型，那么在此之前，我们先来限定一下加入的类型。
+在绘制之前，我们需要设置一下铅笔的图片。与绘制背景、陆地一样，我们现在 `Main.ts` 中挂载 image 到 `DataStore` 上，与之前不同的是，我们这里先 set 一个空数组，在 `Director.ts` 中通过 createPencils 方法实现。
 
-在这里来看，只添加了一个 Background 类型，但是在后面的步骤中会有一些其他的类型加入进来，所以我们创建一个 `types/Index.ts` 文件，来规范一下我们 set 的类型和 get 的类型。
+### 5.1 Main.ts
 
-```ts
+```typescript
+this.dataStore
+  .set('background', Background)
+  .set('land', Land)
++  .set('pencils', []);
++ // 游戏开始前先创建一组铅笔
++ this.director.createPencils();
+```
+
+细心的观众朋友会发现这里 set 空数组报错了，这时候回忆一下之前的一个操作，type!
+
+没错，我们在 `type/Index.ts` 里设置一下类型。
+
+### 5.2 type/Index.ts
+
+```typescript
 import Painter from '@/interfaces/Painter';
 
 /**
@@ -289,211 +120,87 @@ import Painter from '@/interfaces/Painter';
 /**
  * @type DataStoreSet 联合类型（之后会有更多类型，先这样定义出来）
  * @typedef (new()=>Painter) 实现 Painter 接口的构造器
+ * @typedef Painter[][] painter 数组，主要存放铅笔对象，上下为一组
  */
-export type DataStoreSet = new () => Painter;
+export type DataStoreSet = (new () => Painter) | Painter[][];
 
 /**
  * @type DataStoreGet 交叉类型（之后会有更多类型，先这样定义出来），获取时包含所有值的对象与方法
- * @typedef Painter Painter 对象，包含 Background、Land 等资源对象
+ * @typedef Painter Painter 对象，包含 Background、land 等资源对象
+ * @typedef Painter[][] 存放的铅笔对象，上下铅笔为一组
  */
-export type DataStoreGet = Painter;
+export type DataStoreGet = Painter & Painter[][];
 ```
 
-再开始编写 `DataStore.ts` 文件。
+接着就会发现报错神奇的解决了，这也是静态类型检查的一个好处。
 
-```ts
-import { DataStoreGet, DataStoreSet } from '@/types/Index'; // 引入类型文件
+下一步就是在 `Director.ts` 中实现 createPencils 以及绘制到 canvas 上了。
 
-export default class DataStore {
-  private static instance: DataStore;
-   // 存放的值设置为 any 类型，我们只对 set get 时进行校验
-  private readonly map: Map<string, any> = new Map();
-  [key: string]: any; // 通过外部挂载的数据
+### 5.3 Director.ts
 
-  public static getInstance(): DataStore {
-    if (!DataStore.instance) {
-      DataStore.instance = new DataStore();
+```typescript
+import DataStore from './base/DataStore';
+import PencilUp from '@/modules/runtime/PencilUp';
+import PencilDown from '@/modules/runtime/PencilDown';
+
+export default class Director {
+  private static instance: Director;
+  private dataStore: DataStore = DataStore.getInstance();
+  public static readonly moveSpeed = 2;
+
+  public static getInstance(): Director {
+    if (!Director.instance) {
+      Director.instance = new Director();
     }
-    return DataStore.instance;
+    return Director.instance;
   }
 
-  public set(key: string, value: DataStoreSet): DataStore {
-    let mapValue: any = value;
-    // 如果是构造函数，则构造对象，否则直接设置到 map
-    if (typeof value === 'function') {
-      mapValue = new value();
+  public createPencils(): void {
+    const minTop = window.innerHeight / 8;
+    const maxTop = window.innerHeight / 2;
+    const top = minTop + Math.random() * (maxTop - minTop);
+    this.dataStore.get('pencils').push([new PencilUp(top), new PencilDown(top)]);
+  }
+
+  private drawPencils(): void {
+    const pencils = this.dataStore.get('pencils');
+    const firstPencilUp = pencils[0][0];
+    // 这里就解决了我们之前的疑问，当铅笔移除屏幕并且同时存在两组的时候，我们就进行销毁
+    if (firstPencilUp.dx + firstPencilUp.dWidth <= 0 && pencils.length === 2) {
+      //销毁滚动到屏幕外的铅笔
+      pencils.shift();
     }
-    this.map.set(key, mapValue);
-    return this; // return this 方便链式调用
-  }
-
-  public get(key: string): DataStoreGet {
-    return this.map.get(key);
-  }
-}
-```
-
-### 4.5 Sprite.ts & Background.ts & Land.ts
-
-创建 `modules/base/Sprite.ts`、`modules/runtime/Background.ts`、`modules/runtime/Land.ts`。
-
-上面的主要步骤已经完成的差不多了，剩下最关键的部件，就是从 dataStore 里 get 到数据后的 draw 方法，绘制到 canvas 上面。
-
-这里主要是两个部分，一个是精灵基类 `Sprite.ts` 实现 `Painter.ts` 接口，并提供 draw 方法，子类继承自此，可以实现自己不同的 draw 方法，实现不同的裁剪以及绘制位置。
-
-#### Sprite.ts
-
-```ts
-import Painter from '@/interfaces/Painter';
-import DataStore from './DataStore';
-
-export default class Sprite implements Painter {
-  public ctx: CanvasRenderingContext2D = DataStore.getInstance().ctx;
-  public image: HTMLImageElement;
-  public sx: number;
-  public sy: number;
-  public sWidth: number;
-  public sHeight: number;
-  public dx: number;
-  public dy: number;
-  public dWidth: number;
-  public dHeight: number;
-
-  public constructor(
-    image = new Image(),
-    sx = 0,
-    sy = 0,
-    sWidth = 0,
-    sHeight = 0,
-    dx = 0,
-    dy = 0,
-    dWidth = 0,
-    dHeight = 0
-  ) {
-    this.ctx = DataStore.getInstance().ctx;
-    this.image = image;
-    this.sx = sx;
-    this.sy = sy;
-    this.sWidth = sWidth;
-    this.sHeight = sHeight;
-    this.dx = dx;
-    this.dy = dy;
-    this.dWidth = dWidth;
-    this.dHeight = dHeight;
-  }
-
-  // 从 dataStore 的 res 中取出 Image 图片对象，方便在子类中获取图片
-  public static getImage(key: string): HTMLImageElement {
-    return DataStore.getInstance().res.get(key) as HTMLImageElement;
-  }
-
-  public draw(
-    image = this.image,
-    sx = this.sx,
-    sy = this.sy,
-    sWidth = this.sWidth,
-    sHeight = this.sHeight,
-    dx = this.dx,
-    dy = this.dy,
-    dWidth = this.dWidth,
-    dHeight = this.dHeight
-  ): void {
-    // 调用 CanvasRenderingContext2D 对象的 draw 方法进行绘制
-    this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-  }
-}
-```
-
-#### Background.ts
-
-```ts
-import Sprite from '../base/Sprite';
-
-/**
- * 背景类，绘制整个游戏背景图
- */
-export default class Background extends Sprite {
-  public constructor() {
-    // 通过 Sprite.getImage() 从 dataStore 的 res 对象中取得 Image 对象
-    const image = Sprite.getImage('background');
-    // 调用父类构造器，传入参数，从而使得父类的 draw
-    // 再通过 .draw() 方法就能绘制图片了
-    super(
-      image,
-      0,
-      0,
-      image.width,
-      image.height,
-      0,
-      0,
-      window.innerWidth,
-      window.innerHeight
+    // 如果铅笔过了中间，则创建新的铅笔
+    if (
+      firstPencilUp.dx <= (window.innerWidth - firstPencilUp.dWidth) / 2 &&
+      pencils.length === 1
+    ) {
+      this.createPencils();
+    }
+    pencils.forEach(
+      (pencil): void => {
+        pencil[0].draw(); // 绘制上铅笔
+        pencil[1].draw(); // 绘制下铅笔
+      },
     );
   }
-}
-```
 
-#### Land.ts
-
-```ts
-import Sprite from '@/modules/base/Sprite';
-
-/**
- * 陆地类
- */
-
-export default class Land extends Sprite {
-  private landX: number;
-  private landSpeed: number;
-
-  public constructor() {
-    const image = Sprite.getImage('land');
-    super(
-      image,
-      0,
-      0,
-      image.width,
-      image.height,
-      0,
-      window.innerHeight - image.height, // 放置在画布的底部
-      image.width,
-      image.height
-    );
-    this.landX = 0;
-    this.landSpeed = 2; // 陆地移动速度
-  }
-
-  public draw(): void {
-    this.landX += this.landSpeed;
-    // 陆地滚动即将超出屏幕时置为0，重新滚动
-    if (this.landX > this.image.width - window.innerWidth) {
-      this.landX = 0;
-    }
-    super.draw(
-      this.image,
-      this.sx,
-      this.sy,
-      this.sWidth,
-      this.sHeight,
-      -this.landX, // 陆地要从右往左移动
-      this.dy,
-      this.dWidth,
-      this.dHeight
-    );
+  /**
+   * run 控制游戏开始
+   */
+  public run(): void {
+    this.dataStore.get('background').draw();
+    this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
+    this.dataStore.get('land').draw();
+    // 开始滚动，打开注释即可
+    // this.dataStore.animationTimer = requestAnimationFrame(
+    //   (): void => {
+    //     this.run();
+    //   }
+    // );
+    // 下面是取消滚动，在加入游戏开始结束逻辑时启用
+    // cancelAnimationFrame(this.dataStore.animationTimer);
+    // console.log('游戏开始');
   }
 }
 ```
-
-![陆地位置图](https://github.com/yywc/ts-game/blob/step-3/doc/introduction.png)
-
-## 5. 回顾
-
-我们来回顾一下绘制背景图的操作。
-
-1. App.ts 实例化 Main.ts 开始启动游戏（new Main()）；
-2. Main.ts 通过 ResourceLoader.ts 加载资源存储到 DataStore(this.dataStore.res) 上，再借用 Director.ts 操作游戏流程与绘制精灵(this.director.run())；
-3. Director.ts 操作精灵子类绘制不同精灵(extends 和 draw())；
-
-其他部分都是对这个主要流程的补充。如 `interfaces/Painter.ts` 约束好 `Sprite.ts` 的参数；`types/Index.ts` 定义全局的一些类型约束我们参数的类型或者返回值的类型；`Resource.ts` 集合我们所需要的资源数据；
-
-绘制背景图的步骤有点多，很多步骤属于事先定义好，将来会扩展的操作，所以在后面的步骤中会方便很多，游戏主体已经差不多形成了，剩下的就是绘制其他精灵，已经游戏逻辑的控制。

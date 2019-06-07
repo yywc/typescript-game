@@ -29,7 +29,12 @@ export default class Main {
   }
 
   private init(): void {
-    this.dataStore.set('background', Background).set('land', Land);
+    this.dataStore
+      .set('background', Background)
+      .set('land', Land)
+      .set('pencils', []);
+    // 游戏开始前先创建一组铅笔
+    this.director.createPencils();
     this.director.run();
   }
 }

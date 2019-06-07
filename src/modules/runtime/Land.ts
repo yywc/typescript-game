@@ -1,4 +1,5 @@
 import Sprite from '@/modules/base/Sprite';
+import Director from '@/modules/Director';
 
 /**
  * 陆地类
@@ -6,7 +7,6 @@ import Sprite from '@/modules/base/Sprite';
 
 export default class Land extends Sprite {
   private landX: number;
-  private landSpeed: number;
 
   public constructor() {
     const image = Sprite.getImage('land');
@@ -22,11 +22,10 @@ export default class Land extends Sprite {
       image.height
     );
     this.landX = 0;
-    this.landSpeed = 2;
   }
 
   public draw(): void {
-    this.landX += this.landSpeed;
+    this.landX += Director.moveSpeed;
     if (this.landX > this.image.width - window.innerWidth) {
       this.landX = 0;
     }
