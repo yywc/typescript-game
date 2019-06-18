@@ -33,3 +33,4 @@ npm run build && npm run start
 + [搭建开发环境](https://github.com/yywc/ts-game/blob/step-1/README.md)
 + [绘制背景陆地](https://github.com/yywc/ts-game/blob/step-2/README.md)
 + [绘制移动铅笔](https://github.com/yywc/ts-game/blob/step-3/README.md)
++ [绘制飞行小鸟](https://github.com/yywc/ts-game/blob/step-4/README.md)
