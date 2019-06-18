@@ -6,6 +6,7 @@ export default class Director {
   private static instance: Director;
   private dataStore: DataStore = DataStore.getInstance();
   public static readonly moveSpeed = 2;
+  private time = 0;
 
   public static getInstance(): Director {
     if (!Director.instance) {
@@ -44,21 +45,35 @@ export default class Director {
     );
   }
 
+  public birdsFly(): void {
+    const bird = this.dataStore.get('birds');
+    bird.originY = bird.dy;
+    bird.birdDownedTime = 0;
+  }
+
+  /**
+   * 检测游戏是否结束
+   */
+  private checkGameOver(): void {
+    this.time += 1;
+    if (this.time === 300) {
+      this.dataStore.isGameOver = true;
+    }
+  }
+
   /**
    * run 控制游戏开始
    */
   public run(): void {
-    this.dataStore.get('background').draw();
-    this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
-    this.dataStore.get('land').draw();
-    // 开始滚动，打开注释即可
-    // this.dataStore.animationTimer = requestAnimationFrame(
-    //   (): void => {
-    //     this.run();
-    //   }
-    // );
-    // 下面是取消滚动，在加入游戏开始结束逻辑时启用
-    // cancelAnimationFrame(this.dataStore.animationTimer);
-    // console.log('游戏开始');
+    this.checkGameOver();
+    if (!this.dataStore.isGameOver) {
+      this.dataStore.get('background').draw();
+      this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
+      this.dataStore.get('land').draw();
+      this.dataStore.get('birds').draw();
+      this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
+    } else {
+      cancelAnimationFrame(this.dataStore.animationTimer);
+    }
   }
 }

@@ -3,6 +3,7 @@ import DataStore from './base/DataStore';
 import Director from './Director';
 import Background from './runtime/Background';
 import Land from './runtime/Land';
+import Birds from '@/modules/player/Birds';
 
 /**
  * Main 主体类，游戏启动入口
@@ -32,9 +33,26 @@ export default class Main {
     this.dataStore
       .set('background', Background)
       .set('land', Land)
-      .set('pencils', []);
+      .set('pencils', [])
+      .set('birds', Birds);
+    this.registerEvent();
     // 游戏开始前先创建一组铅笔
     this.director.createPencils();
     this.director.run();
+  }
+
+  private registerEvent(): void {
+    this.canvas.addEventListener(
+      'touchstart',
+      (e): void => {
+        e.preventDefault();
+        if (this.dataStore.isGameOver) {
+          console.log('游戏开始');
+          this.init();
+        } else {
+          this.director.birdsFly();
+        }
+      }
+    );
   }
 }
