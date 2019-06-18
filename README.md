@@ -97,7 +97,7 @@ export default class Birds extends Sprite {
 
 在 Main.ts 保存 Birds 前，我们需要在 `types/Index.ts`里将 Birds 的类型添加到 DataStoreSet、DataStoreGet 中
 
-### 3.1 types/Index.ts
+### 2.1 types/Index.ts
 
 ```ts
 + import Birds from '@/modules/player/Birds';
@@ -109,7 +109,7 @@ export default class Birds extends Sprite {
 + export type DataStoreGet = Painter & Painter[][] & Birds;
 ```
 
-### 3.2 Main.ts
+### 2.2 Main.ts
 
 ```ts
 + import Birds from '@/modules/player/Birds';
@@ -127,7 +127,7 @@ private init(): void {
 }
 ```
 
-## 4. Director.ts 绘制
+## 3. Director.ts 绘制
 
 ```ts
 public run(): void {
@@ -151,13 +151,13 @@ public run(): void {
 
 下面就来实现这个功能。
 
-## 5. 小鸟飞行
+## 4. 小鸟飞行
 
 让小鸟随着点击屏幕来飞行，canvas 自然是需要一个点击事件了。我们在 Main.ts 里来注册事件，与此同时，需要一个状态（isGameOver）来判断游戏是否在进行：游戏进行时则调用小鸟飞行方法，否则初始化项目重新开始游戏。
 
 
 
-### 5.1 Main.ts 里的事件注册
+### 4.1 Main.ts 里的事件注册
 
 ```ts
 + import Birds from '@/modules/player/Birds';
@@ -194,7 +194,7 @@ private init(): void {
 + }
 ```
 
-### 5.2 Director.ts 里的小鸟飞行
+### 4.2 Director.ts 里的小鸟飞行
 
 在上一个步骤中，我们通过在 Main.ts 里实现 registerEvent 方法来使点击屏幕时能让小鸟飞行，重要的 birdsFly 方法现在来实现。
 
