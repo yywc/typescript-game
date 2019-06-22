@@ -1,12 +1,12 @@
 import DataStore from './base/DataStore';
 import PencilUp from '@/modules/runtime/PencilUp';
 import PencilDown from '@/modules/runtime/PencilDown';
+import { BorderOffset } from '@/types/Index';
 
 export default class Director {
   private static instance: Director;
   private dataStore: DataStore = DataStore.getInstance();
   public static readonly moveSpeed = 2;
-  private time = 0;
 
   public static getInstance(): Director {
     if (!Director.instance) {
@@ -52,12 +52,62 @@ export default class Director {
   }
 
   /**
+   * 判断是否碰撞（数字不影响主要逻辑，为了视觉效果）：
+   * - 为了逻辑好梳理，我们判断未碰撞情况取反就可以了：
+   * -- 1. 小鸟在铅笔左侧：bird.right < pencil.left
+   * -- 2. 小鸟在铅笔右侧 bird.left < pencil.right
+   * -- 3. 小鸟在管道内 bird.top > pencil.top && bird.bottom < pencil.bottom
+   */
+  private static isStrike(bird: BorderOffset, pencil: BorderOffset): boolean {
+    return !(
+      bird.right < pencil.left + 5 ||
+      bird.left > pencil.right - 10 ||
+      (bird.top > pencil.top && bird.bottom < pencil.bottom)
+    );
+  }
+
+  /**
    * 检测游戏是否结束
+   * 需要判断是否撞到铅笔或者地板
    */
   private checkGameOver(): void {
-    this.time += 1;
-    if (this.time === 300) {
+    // 获取 image 对象
+    const birds = this.dataStore.get('birds');
+    const land = this.dataStore.get('land');
+    const pencils = this.dataStore.get('pencils');
+
+    // 定义小鸟的四周
+    const birdBorder: BorderOffset = {
+      top: birds.dy, // 顶部坐标就是起始位置
+      right: birds.dx + birds.dWidth, // 右侧坐标是起始位置+小鸟本身宽度
+      bottom: birds.dy + birds.dHeight,
+      left: birds.dx,
+    };
+
+    // 判断是否撞到地板，多加数字 5 是起一个视觉调整作用
+    if (birds.dy + birds.dHeight + 5 >= land.dy) {
+      console.log('撞到地板了');
       this.dataStore.isGameOver = true;
+      return;
+    }
+
+    // 判断是否与铅笔相撞
+    for (let i = 0, len = pencils.length; i < len; i += 1) {
+      const pencil = pencils[i]; // 获取当前铅笔组
+      // 当前铅笔对象的四周：左右为左右，上部取上铅笔的底部，下部取下铅笔的顶部
+      // 也就是中间通道的四边坐标
+      const pencilBorder: BorderOffset = {
+        top: pencil[0].dy + pencil[0].dHeight,
+        right: pencil[0].dx + pencil[0].dWidth,
+        bottom: pencil[1].dy,
+        left: pencil[0].dx,
+      };
+      // 判断小鸟与铅笔是否碰撞
+      if (Director.isStrike(birdBorder, pencilBorder)) {
+        console.log('撞到铅笔了');
+        this.dataStore.isGameOver = true;
+        return;
+      }
     }
   }
 
