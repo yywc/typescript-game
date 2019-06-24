@@ -5,7 +5,7 @@ export default class Birds extends Sprite {
   public birdDownedTime: number; // 小鸟自由落体的时间，计算距离
   private birdCount: number; // 切换小鸟状态个数，用来计算小鸟索引
   private birdIndex: number; // 小鸟索引，取 image 里小鸟状态
-  public readonly sxList: number[]; // 小鸟在 image 里的各个位置
+  private readonly sxList: number[]; // 小鸟在 image 里的各个位置
 
   public constructor() {
     const image = Sprite.getImage('birds');
