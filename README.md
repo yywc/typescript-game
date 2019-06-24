@@ -1,245 +1,100 @@
 ## 前言
 
-在上一个步骤中，我们实现了铅笔的绘制以及移动动画，这一篇主要是实现小鸟的绘制以及点击屏幕跳动。
+在前面的编码中，已经实现了小鸟的绘制与飞行，这里主要是实现对小鸟飞行的碰撞检测。
 
-先理清一下思路：
+之前我们为了简单测试效果，checkGameOver 函数只是随便写了点东西，现在先删掉，还原一个空函数，之后开始编写。
 
-1. 与之前类似，先定义一个 birds 类，重写父类方法，绘制不同状态的小鸟；
-2. 在 Main.ts 里设置到 dataStore 保存，方便其他地方使用；
-3. 在 Director.ts 里控制绘制与其他事件；
+checkGameOver 函数主要是判断小鸟与陆地、小鸟与铅笔的碰撞，从而改变 this.dataStore.isGameOver 的值，达到一个游戏结束的效果，唯一复杂一点的部分就是铅笔分为上下铅笔一个组。
 
-## 1. 定义 birds 类
+首先我们定义一个类型 `BorderOffset`具备上下左右四个字段，用来判断是否碰撞。
 
-birds 类与其他类一样，继承自 Sprite.ts，但是小鸟有三种飞行状态，我们需要实时来切换，于是就需要重写父类的 draw 方法。
+## 1. types/Index.ts
 
 ```ts
-import Sprite from '@/modules/base/Sprite';
+/**
+ * @interface BorderOffset
+ * @param top 碰撞检测对象顶部，距离窗口顶部的距离
+ * @param right 碰撞检测对象右侧，距离窗口左侧的距离
+ * @param bottom 碰撞检测对象底部，距离窗口顶部的距离
+ * @param left 碰撞检测对象左侧，距离窗口左侧的距离
+ */
+export interface BorderOffset {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+```
 
-export default class Birds extends Sprite {
-  public originY: number; // 小鸟初始的位置，需要再外部利用这个值重置小鸟位置
-  public birdDownedTime: number; // 小鸟自由落体的时间，计算距离
-  private birdCount: number; // 切换小鸟状态个数，用来计算小鸟索引
-  private birdIndex: number; // 小鸟索引，取 image 里小鸟状态
-  private readonly sxList: number[]; // 小鸟在 image 里的各个位置
+## 2. Director.ts 里的 isStrike 方法
 
-  public constructor() {
-    const image = Sprite.getImage('birds');
-    super(
-      image,
-      0,
-      0,
-      image.width,
-      image.height,
-      0,
-      0,
-      window.innerWidth,
-      window.innerHeight
-    );
-    this.birdCount = 0;
-    this.birdDownedTime = 0;
-    this.birdIndex = 0;
-    // 小鸟宽高，数据从 png 中量的
-    const birdWidth = 34;
-    const birdHeight = 24;
-    // 小鸟在 canvas 中的位置
-    const drawXPos = window.innerWidth / 4;
-    const drawYPos = window.innerWidth / 2;
-    // 小鸟宽 34，高 24，上下边距 10，左右边距 9
-    this.sxList = [9, 9 + 34 + 18, 9 + 34 + 18 + 34 + 18];
-    this.sy = 10;
-    this.sWidth = birdWidth;
-    this.sHeight = birdHeight;
-    this.dx = drawXPos;
-    this.dy = drawYPos;
-    this.dWidth = birdWidth;
-    this.dHeight = birdHeight;
-    this.originY = drawYPos;
-  }
+在判断铅笔与小鸟碰撞时，单独写一个 isStrike 方法，理清逻辑。传参两个 BorderOffset 的对象，返回 boolean 值。
 
-  private calculateBirds(): void {
-    // 切换小鸟状态个数，用以获得小鸟索引
-    this.birdCount += 0.1;
-    if (this.birdCount > 3) {
-      this.birdCount = 0;
-    }
-    // 获得小鸟索引，往小取值防止浏览器刷新过快闪烁
-    this.birdIndex = Math.floor(this.birdCount);
-    const g = 0.98 / 2.4; // 重力加速度，缓冲一下别太快
-    // 获得掉落的距离，计算方法是自由落体，gt²/2，为了点击时往上跳一下再掉下去
-    // 所以就用 gt(t-t0)/2，得到一个向上的位移
-    const t0 = 20;
-    const offsetY = (g * this.birdDownedTime * (this.birdDownedTime - t0)) / 2;
-    // 计算出要在 canvas 上画的位置
-    this.dy = offsetY + this.originY;
-    this.birdDownedTime += 1; // 掉落时间加一
-  }
-
-  // 核心方法
-  public draw(): void {
-    // 计算小鸟的各种状态，然后调用父类的 draw 方法实现绘制
-    this.calculateBirds();
-    super.draw(
-      this.image,
-      this.sxList[this.birdIndex],
-      this.sy,
-      this.sWidth,
-      this.sHeight,
-      this.dx,
-      this.dy,
-      this.dWidth,
-      this.dHeight
+```ts
+  /**
+   * 判断是否碰撞（数字不影响主要逻辑，为了视觉效果）：
+   * - 为了逻辑好梳理，我们判断未碰撞情况取反就可以了：
+   * -- 1. 小鸟在铅笔左侧：bird.right < pencil.left
+   * -- 2. 小鸟在铅笔右侧 bird.left < pencil.right
+   * -- 3. 小鸟在管道内 bird.top > pencil.top && bird.bottom < pencil.bottom
+   */
+  private static isStrike(bird: BorderOffset, pencil: BorderOffset): boolean {
+    return !(
+      bird.right < pencil.left + 5 ||
+      bird.left > pencil.right - 10 ||
+      (bird.top > pencil.top && bird.bottom < pencil.bottom)
     );
   }
-}
 ```
 
-## 2. Main.ts 保存 Birds
-
-在 Main.ts 保存 Birds 前，我们需要在 `types/Index.ts`里将 Birds 的类型添加到 DataStoreSet、DataStoreGet 中
-
-### 3.1 types/Index.ts
+##  3. Director.ts 里的checkGameOver 函数
 
 ```ts
-+ import Birds from '@/modules/player/Birds';
-
-- export type DataStoreSet = (new () => Painter) | Painter[][]
-+ export type DataStoreSet = (new () => Painter) | Painter[][] | Birds;
-
-- export type DataStoreGet = Painter & Painter[][];
-+ export type DataStoreGet = Painter & Painter[][] & Birds;
-```
-
-### 3.2 Main.ts
-
-```ts
-+ import Birds from '@/modules/player/Birds';
-
-private init(): void {
-  this.dataStore
-   .set('background', Background)
-   .set('land', Land)
--   .set('pencils', []);
-+   .set('pencils', [])
-+   .set('birds', Birds); // 放置 Birds 对象
-  // 游戏开始前先创建一组铅笔
-  this.director.createPencils();
-  this.director.run();
-}
-```
-
-## 4. Director.ts 绘制
-
-```ts
-public run(): void {
-  this.dataStore.get('background').draw();
-  this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
-  this.dataStore.get('land').draw();
-+   this.dataStore.get('birds').draw();
-  // 开始滚动，打开注释即可
-  // this.dataStore.animationTimer = requestAnimationFrame(
-  //   (): void => {
-  //     this.run();
-  //   }
-  // );
-  // 下面是取消滚动，在加入游戏开始结束逻辑时启用
-  // cancelAnimationFrame(this.dataStore.animationTimer);
-  // console.log('游戏开始');
-}
-```
-
-到这里为止，我们已经成功地在 canvas 上画出了小鸟，那么如何让它随着我们的点击来飞行呢？
-
-下面就来实现这个功能。
-
-## 5. 小鸟飞行
-
-让小鸟随着点击屏幕来飞行，canvas 自然是需要一个点击事件了。我们在 Main.ts 里来注册事件，与此同时，需要一个状态（isGameOver）来判断游戏是否在进行：游戏进行时则调用小鸟飞行方法，否则初始化项目重新开始游戏。
-
-
-
-### 5.1 Main.ts 里的事件注册
-
-```ts
-+ import Birds from '@/modules/player/Birds';
-
-private init(): void {
-  this.dataStore
-   .set('background', Background)
-   .set('land', Land)
-   .set('pencils', []);
-   .set('pencils', [])
-   .set('birds', Birds); // 放置 Birds 对象
-+   this.registerEvent(); // 注册事件
-  // 游戏开始前先创建一组铅笔
-  this.director.createPencils();
-  this.director.run();
-}
-
-  // 事件注册方法，只在内部使用，使用 private，且没有返回值
-+ private registerEvent(): void {
-+   this.canvas.addEventListener(
-+     'touchstart',
-+     (e): void => {
-+       e.preventDefault();
-+       // 判断游戏是否在进行，isGameOver 新挂载的字段，用以判断游戏状态
-+       if (this.dataStore.isGameOver) {
-+         console.log('游戏开始');
-+         this.init();
-+       } else {
-+         // 小鸟飞行，下一步在 director 里实现
-+         this.director.birdsFly();
-+       }
-+     }
-+   );
-+ }
-```
-
-### 5.2 Director.ts 里的小鸟飞行
-
-在上一个步骤中，我们通过在 Main.ts 里实现 registerEvent 方法来使点击屏幕时能让小鸟飞行，重要的 birdsFly 方法现在来实现。
-
-在实现之前，我们来思考一下，如何能让小鸟在点击屏幕来向上跳动呢？
-
-答案其实也很简单，就是绘制的时候，把 dy 字段往上偏移一点就可以了，那么我们绘制时的 `this.dy = offsetY + this.originY;` 就是这个效果，所以我们只需要将当前的 dy 当做初始的 Y 坐标，也就是 originY 即可。
-
-```ts
-+ public birdsFly(): void {
-+   const bird = this.dataStore.get('birds'); // 获取小鸟
-+   // 将当前 Y 坐标作为起始 Y 坐标，这样在 this.dy = offsetY + this.originY; 计算时就会往上偏移一点点了
-+   bird.originY = bird.dy;
-+   // 下落时间不要忘记重置为 0
-+   bird.birdDownedTime = 0;
-+ }
-```
-
-同时我们简单判断一下游戏的结束，来看看效果，下一节就会来实现碰撞以及游戏的状态了。
-
-```ts
-+   private time = 0;
-+   /**
-+    * 检测游戏是否结束
-+    */
-+   private checkGameOver(): void {
-+     this.time += 1;
-+     if (this.time === 300) { // 计算到 300 时算游戏结束
-+       this.dataStore.isGameOver = true;
-+     }
-+  }
+import { BorderOffset } from '@/types/Index';  
 
   /**
-   * run 控制游戏开始
+   * 检测游戏是否结束
+   * 需要判断是否撞到铅笔或者地板
    */
-  public run(): void {
-+     this.checkGameOver();
-+     if (!this.dataStore.isGameOver) {
-      this.dataStore.get('background').draw();
-      this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
-      this.dataStore.get('land').draw();
-+       this.dataStore.get('birds').draw();
-+       this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
-+     } else {
-+       cancelAnimationFrame(this.dataStore.animationTimer);
-+     }
+  private checkGameOver(): void {
+    // 获取 image 对象
+    const birds = this.dataStore.get('birds');
+    const land = this.dataStore.get('land');
+    const pencils = this.dataStore.get('pencils');
+
+    // 定义小鸟的四周，BorderOffset 在 types/Index.ts 里定义
+    const birdBorder: BorderOffset = {
+      top: birds.dy, // 顶部坐标就是起始位置
+      right: birds.dx + birds.dWidth, // 右侧坐标是起始位置+小鸟本身宽度
+      bottom: birds.dy + birds.dHeight,
+      left: birds.dx,
+    };
+
+    // 判断是否撞到地板，多加数字 5 是起一个视觉调整作用
+    if (birds.dy + birds.dHeight + 5 >= land.dy) {
+      console.log('撞到地板了');
+      this.dataStore.isGameOver = true;
+      return;
+    }
+
+    // 判断是否与铅笔相撞
+    for (let i = 0, len = pencils.length; i < len; i += 1) {
+      const pencil = pencils[i]; // 获取当前铅笔组
+      // 当前铅笔对象的四周：左右为左右，上部取上铅笔的底部，下部取下铅笔的顶部
+      // 也就是中间通道的四边坐标
+      const pencilBorder: BorderOffset = {
+        top: pencil[0].dy + pencil[0].dHeight,
+        right: pencil[0].dx + pencil[0].dWidth,
+        bottom: pencil[1].dy,
+        left: pencil[0].dx,
+      };
+      // 判断小鸟与铅笔是否碰撞，isStrike 在下面实现
+      if (Director.isStrike(birdBorder, pencilBorder)) {
+        console.log('撞到铅笔了');
+        this.dataStore.isGameOver = true;
+        return;
+      }
+    }
   }
 ```
 
