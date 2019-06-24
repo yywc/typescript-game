@@ -8,7 +8,25 @@ checkGameOver 函数主要是判断小鸟与陆地、小鸟与铅笔的碰撞，
 
 首先我们定义一个类型 `BorderOffset`具备上下左右四个字段，用来判断是否碰撞。
 
-## 1. types/Index.ts
+## 1. fix 小鸟飞行 bug
+
+在此之前先修复一个小 bug，这是在小鸟飞行过程中飞到顶部会跳出屏幕，做一个限制即可。
+
+```ts
+// Birds.ts
+- this.dy = offsetY + this.originY;
++ this.dy = offsetY + this.originY <= 0 ? 0 : offsetY + this.originY;
+```
+
+然后调整一下游戏难度（不然毫无乐趣啊啊啊啊）
+
+```ts
+// PencilDown.ts
+- const gapBetweenTwoPencils = window.innerHeight / 8;
++ const gapBetweenTwoPencils = window.innerHeight / 7;
+```
+
+## 2. types/Index.ts
 
 ```ts
 /**
@@ -26,7 +44,7 @@ export interface BorderOffset {
 }
 ```
 
-## 2. Director.ts 里的 isStrike 方法
+## 3. Director.ts 里的 isStrike 方法
 
 在判断铅笔与小鸟碰撞时，单独写一个 isStrike 方法，理清逻辑。传参两个 BorderOffset 的对象，返回 boolean 值。
 
@@ -47,7 +65,7 @@ export interface BorderOffset {
   }
 ```
 
-##  3. Director.ts 里的checkGameOver 函数
+##  4. Director.ts 里的checkGameOver 函数
 
 ```ts
 import { BorderOffset } from '@/types/Index';  
