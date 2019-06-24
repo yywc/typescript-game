@@ -25,4 +25,10 @@ export default class DataStore {
   public get(key: string): DataStoreGet {
     return this.map.get(key);
   }
+
+  public destroy(): void {
+    for (const key of this.map.keys()) {
+      this.map.set(key, null);
+    }
+  }
 }

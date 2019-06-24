@@ -4,6 +4,7 @@ import Director from './Director';
 import Background from './runtime/Background';
 import Land from './runtime/Land';
 import Birds from '@/modules/player/Birds';
+import StartButton from '@/modules/player/StartButton';
 
 /**
  * Main 主体类，游戏启动入口
@@ -30,11 +31,14 @@ export default class Main {
   }
 
   private init(): void {
+    // 初始化设置游戏结束标志为 false
+    this.dataStore.isGameOver = false;
     this.dataStore
       .set('background', Background)
       .set('land', Land)
       .set('pencils', [])
-      .set('birds', Birds);
+      .set('birds', Birds)
+      .set('startButton', StartButton); // 添加开始按钮对象
     this.registerEvent();
     // 游戏开始前先创建一组铅笔
     this.director.createPencils();

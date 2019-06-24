@@ -123,7 +123,10 @@ export default class Director {
       this.dataStore.get('birds').draw();
       this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
     } else {
+      console.log('游戏结束');
+      this.dataStore.get('startButton').draw();
       cancelAnimationFrame(this.dataStore.animationTimer);
+      this.dataStore.destroy(); // 清空上场游戏的数据
     }
   }
 }
