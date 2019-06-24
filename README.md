@@ -34,3 +34,4 @@ npm run build && npm run start
 + [绘制背景陆地](https://github.com/yywc/ts-game/blob/step-2/README.md)
 + [绘制移动铅笔](https://github.com/yywc/ts-game/blob/step-3/README.md)
 + [绘制飞行小鸟](https://github.com/yywc/ts-game/blob/step-4/README.md)
++ [小鸟碰撞检测](https://github.com/yywc/ts-game/blob/step-5/README.md)
