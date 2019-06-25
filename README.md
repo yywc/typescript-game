@@ -35,3 +35,4 @@ npm run build && npm run start
 + [绘制移动铅笔](https://github.com/yywc/ts-game/blob/step-3/README.md)
 + [绘制飞行小鸟](https://github.com/yywc/ts-game/blob/step-4/README.md)
 + [小鸟碰撞检测](https://github.com/yywc/ts-game/blob/step-5/README.md)
++ [游戏积分系统](https://github.com/yywc/ts-game/blob/step-6/README.md)
