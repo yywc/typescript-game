@@ -30,7 +30,7 @@ export default class StartButton extends Sprite {
 }
 ```
 
-###  1.1 `Main.ts `里给 dataStore set 这个类对象。
+###  1.1 Main.ts 里给 dataStore set 这个类对象。
 
 ```ts
 + import StartButton from '@/modules/player/StartButton';
@@ -56,7 +56,7 @@ export default class StartButton extends Sprite {
 
 那么在 `Director.ts`的 run 方法里，如果游戏结束，则绘制按钮，同时还要清空 dataStore 里所有的数据。
 
-### 1.2 `Main.ts`
+### 1.2 Main.ts
 
 ```ts
   /**
@@ -79,7 +79,7 @@ export default class StartButton extends Sprite {
   }
 ```
 
-### 1.3 `DataStore.ts`实现 destroy 方法
+### 1.3 DataStore.ts 实现 destroy 方法
 
 ```ts
   public destroy(): void {
