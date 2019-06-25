@@ -5,6 +5,7 @@ import Background from './runtime/Background';
 import Land from './runtime/Land';
 import Birds from '@/modules/player/Birds';
 import StartButton from '@/modules/player/StartButton';
+import Score from '@/modules/player/Score';
 
 /**
  * Main 主体类，游戏启动入口
@@ -38,7 +39,8 @@ export default class Main {
       .set('land', Land)
       .set('pencils', [])
       .set('birds', Birds)
-      .set('startButton', StartButton); // 添加开始按钮对象
+      .set('startButton', StartButton) // 添加开始按钮对象
+      .set('score', Score);
     this.registerEvent();
     // 游戏开始前先创建一组铅笔
     this.director.createPencils();

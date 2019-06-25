@@ -29,6 +29,8 @@ export default class Director {
     if (firstPencilUp.dx + firstPencilUp.dWidth <= 0 && pencils.length === 2) {
       //销毁滚动到屏幕外的铅笔
       pencils.shift();
+      // 开启加分
+      this.dataStore.get('score').isScore = true;
     }
     // 如果铅笔过了中间，则创建新的铅笔
     if (
@@ -75,6 +77,7 @@ export default class Director {
     const birds = this.dataStore.get('birds');
     const land = this.dataStore.get('land');
     const pencils = this.dataStore.get('pencils');
+    const score = this.dataStore.get('score');
 
     // 定义小鸟的四周
     const birdBorder: BorderOffset = {
@@ -108,6 +111,13 @@ export default class Director {
         this.dataStore.isGameOver = true;
         return;
       }
+
+      // 加分状态且小鸟越过了第一组铅笔的右侧
+      if (score.isScore && birds.dx >= pencils[0][0].dx + pencils[0][0].dWidth) {
+        // 结束加分
+        score.isScore = false;
+        score.scoreNumber += 1;
+      }
     }
   }
 
@@ -120,6 +130,7 @@ export default class Director {
       this.dataStore.get('background').draw();
       this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
       this.dataStore.get('land').draw();
+      this.dataStore.get('score').draw();
       this.dataStore.get('birds').draw();
       this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
     } else {
