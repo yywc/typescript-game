@@ -1,6 +1,10 @@
 ## 前言
 
-用 TypeScript 重构的 Flappy Bird 游戏，主要参考慕课网课程——[微信小游戏入门与实战 引爆朋友圈](https://coding.imooc.com/class/183.html)。
+用 TypeScript 编写的 Flappy Bird 游戏。
+
+主要购买慕课网课程——[微信小游戏入门与实战 引爆朋友圈](https://coding.imooc.com/class/183.html)学习后总结重构。
+
+本人也是边学边总结，在尽可能保证内容准确的情况下，难免会有一些疏忽和错误，希望大家不吝赐教，谢谢😄。
 
 + 当前版本：WEB 端 H5
 + v1.0.0版本：[微信小游戏](https://github.com/yywc/ts-game/tree/v1.0.0)
@@ -9,10 +13,10 @@
 
 ## 1. 相关技能
 
-+ 面向对象思想
 + webpack4 打包
-+ typescript 的使用
-+ typescript 开发环境配置
++ 面向对象/接口思想
++ typescript 的配置和使用
++ prettier 规范代码格式和 commitizen 规范提交内容
 
 ## 2. 打开方式
 
