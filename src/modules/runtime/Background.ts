@@ -1,9 +1,9 @@
-import Sprite from '../base/Sprite';
-
 /**
- * 背景类，绘制整个游戏背景图
+ * 背景类
  */
-export default class Background extends Sprite {
+import Sprite from '@/modules/base/Sprite';
+
+export default class BackGround extends Sprite {
   public constructor() {
     const image = Sprite.getImage('background');
     super(
