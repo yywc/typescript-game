@@ -37,7 +37,7 @@ export default class Main {
     this.dataStore
       .set('background', Background)
       .set('land', Land)
-      .set('pencils', [])
+      .set('pencils', Array)
       .set('birds', Birds)
       .set('startButton', StartButton) // 添加开始按钮对象
       .set('score', Score);

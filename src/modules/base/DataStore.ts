@@ -1,5 +1,3 @@
-import { DataStoreGet, DataStoreSet } from '@/types/Index';
-
 export default class DataStore {
   private static instance: DataStore;
   private readonly map: Map<string, any> = new Map();
@@ -12,17 +10,12 @@ export default class DataStore {
     return DataStore.instance;
   }
 
-  public set(key: string, value: DataStoreSet): DataStore {
-    let mapValue: any = value;
-    // 如果是构造函数，则构造对象，否则直接设置到 map
-    if (typeof value === 'function') {
-      mapValue = new value();
-    }
-    this.map.set(key, mapValue);
+  public set<T>(key: string, Constructor: { new (): T }): DataStore {
+    this.map.set(key, new Constructor());
     return this;
   }
 
-  public get(key: string): DataStoreGet {
+  public get<T>(key: string): T {
     return this.map.get(key);
   }
 

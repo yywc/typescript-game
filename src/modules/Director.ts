@@ -2,6 +2,13 @@ import DataStore from './base/DataStore';
 import PencilUp from '@/modules/runtime/PencilUp';
 import PencilDown from '@/modules/runtime/PencilDown';
 import { BorderOffset } from '@/types/Index';
+import Birds from '@/modules/player/Birds';
+import Land from '@/modules/runtime/Land';
+import Score from '@/modules/player/Score';
+import BackGround from '@/modules/runtime/BackGround';
+import StartButton from '@/modules/player/StartButton';
+
+type Pencils = [PencilUp, PencilDown][];
 
 export default class Director {
   private static instance: Director;
@@ -19,18 +26,18 @@ export default class Director {
     const minTop = window.innerHeight / 8;
     const maxTop = window.innerHeight / 2;
     const top = minTop + Math.random() * (maxTop - minTop);
-    this.dataStore.get('pencils').push([new PencilUp(top), new PencilDown(top)]);
+    this.dataStore.get<Pencils>('pencils').push([new PencilUp(top), new PencilDown(top)]);
   }
 
   private drawPencils(): void {
-    const pencils = this.dataStore.get('pencils');
+    const pencils = this.dataStore.get<Pencils>('pencils');
     const firstPencilUp = pencils[0][0];
     // 这里就解决了我们之前的疑问，当铅笔移除屏幕并且同时存在两组的时候，我们就进行销毁
     if (firstPencilUp.dx + firstPencilUp.dWidth <= 0 && pencils.length === 2) {
       //销毁滚动到屏幕外的铅笔
       pencils.shift();
       // 开启加分
-      this.dataStore.get('score').isScore = true;
+      this.dataStore.get<Score>('score').isScore = true;
     }
     // 如果铅笔过了中间，则创建新的铅笔
     if (
@@ -48,7 +55,7 @@ export default class Director {
   }
 
   public birdsFly(): void {
-    const bird = this.dataStore.get('birds');
+    const bird = this.dataStore.get<Birds>('birds');
     bird.originY = bird.dy;
     bird.birdDownedTime = 0;
   }
@@ -74,10 +81,10 @@ export default class Director {
    */
   private checkGameOver(): void {
     // 获取 image 对象
-    const birds = this.dataStore.get('birds');
-    const land = this.dataStore.get('land');
-    const pencils = this.dataStore.get('pencils');
-    const score = this.dataStore.get('score');
+    const birds = this.dataStore.get<Birds>('birds');
+    const land = this.dataStore.get<Land>('land');
+    const pencils = this.dataStore.get<Pencils>('pencils');
+    const score = this.dataStore.get<Score>('score');
 
     // 定义小鸟的四周
     const birdBorder: BorderOffset = {
@@ -127,15 +134,15 @@ export default class Director {
   public run(): void {
     this.checkGameOver();
     if (!this.dataStore.isGameOver) {
-      this.dataStore.get('background').draw();
+      this.dataStore.get<BackGround>('background').draw();
       this.drawPencils(); // 要注意绘制顺序，canvas 是覆盖的
-      this.dataStore.get('land').draw();
-      this.dataStore.get('score').draw();
-      this.dataStore.get('birds').draw();
+      this.dataStore.get<Land>('land').draw();
+      this.dataStore.get<Score>('score').draw();
+      this.dataStore.get<Birds>('birds').draw();
       this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
     } else {
       console.log('游戏结束');
-      this.dataStore.get('startButton').draw();
+      this.dataStore.get<StartButton>('startButton').draw();
       cancelAnimationFrame(this.dataStore.animationTimer);
       this.dataStore.destroy(); // 清空上场游戏的数据
     }
