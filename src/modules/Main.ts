@@ -38,7 +38,7 @@ export default class Main {
     this.dataStore
       .set('background', BackGround)
       .set('land', Land)
-      .set('pencils', [])
+      .set('pencils', Array)
       .set('birds', Birds)
       .set('startButton', StartButton)
       .set('score', Score);

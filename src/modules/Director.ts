@@ -5,6 +5,12 @@ import DataStore from '@/modules/base/DataStore';
 import PencilUp from '@/modules/runtime/PencilUp';
 import PencilDown from '@/modules/runtime/PencilDown';
 import { BorderOffset } from '@/types/Index';
+import Birds from '@/modules/player/Birds';
+import Land from '@/modules/runtime/Land';
+import Pencil from '@/modules/runtime/Pencil';
+import Score from '@/modules/player/Score';
+import BackGround from '@/modules/runtime/BackGround';
+import StartButton from '@/modules/player/StartButton';
 
 export default class Director {
   private static instance: Director;
@@ -33,12 +39,12 @@ export default class Director {
     const minTop = window.innerHeight / 8;
     const maxTop = window.innerHeight / 2;
     const top = minTop + Math.random() * (maxTop - minTop);
-    this.dataStore.get('pencils').push(new PencilUp(top));
-    this.dataStore.get('pencils').push(new PencilDown(top));
+    this.dataStore.get<PencilUp[]>('pencils').push(new PencilUp(top));
+    this.dataStore.get<PencilDown[]>('pencils').push(new PencilDown(top));
   }
 
   public birdsEvent(): void {
-    const birds = this.dataStore.get('birds');
+    const birds = this.dataStore.get<Birds>('birds');
     for (let i = 0; i < 3; i += 1) {
       birds.originYList[i] = birds.birdsYList[i];
     }
@@ -47,10 +53,10 @@ export default class Director {
 
   // 检测碰撞，判断游戏是否结束
   private checkGameOver(): void {
-    const birds = this.dataStore.get('birds');
-    const land = this.dataStore.get('land');
-    const pencils = this.dataStore.get('pencils');
-    const score = this.dataStore.get('score');
+    const birds = this.dataStore.get<Birds>('birds');
+    const land = this.dataStore.get<Land>('land');
+    const pencils = this.dataStore.get<Pencil[]>('pencils');
+    const score = this.dataStore.get<Score>('score');
 
     const birdBorder: BorderOffset = {
       top: birds.originYList[0],
@@ -91,16 +97,16 @@ export default class Director {
     this.checkGameOver();
     if (!this.isGameOver) {
       // 绘制相关精灵
-      this.dataStore.get('background').draw();
+      this.dataStore.get<BackGround>('background').draw();
 
-      const pencils = this.dataStore.get('pencils');
+      const pencils = this.dataStore.get<Pencil[]>('pencils');
       // 销毁铅笔
       if (pencils[0].dx + pencils[0].dWidth <= 0 && pencils.length === 4) {
         // 推出该组铅笔，该组包含了上下两根
         pencils.shift();
         pencils.shift();
         // 开启加分
-        this.dataStore.get('score').isScore = true;
+        this.dataStore.get<Score>('score').isScore = true;
       }
       // 不断创建铅笔
       if (
@@ -111,17 +117,17 @@ export default class Director {
       }
       pencils.forEach((pencil): void => pencil.draw());
 
-      this.dataStore.get('land').draw();
+      this.dataStore.get<Land>('land').draw();
 
-      this.dataStore.get('score').draw();
+      this.dataStore.get<Score>('score').draw();
 
-      this.dataStore.get('birds').draw();
+      this.dataStore.get<Birds>('birds').draw();
 
       // 跑动动画
       this.dataStore.animationTimer = requestAnimationFrame((): void => this.run());
     } else {
       console.log('游戏结束');
-      this.dataStore.get('startButton').draw();
+      this.dataStore.get<StartButton>('startButton').draw();
       cancelAnimationFrame(this.dataStore.animationTimer);
       this.dataStore.destroy();
     }

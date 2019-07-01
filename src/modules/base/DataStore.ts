@@ -2,11 +2,10 @@
  * 变量缓存器，方便我们在不同的类中访问和修改变量
  */
 
-import { DataStoreSet, DataStoreGet } from '@/types/Index';
-
 export default class DataStore {
   private static instance: DataStore;
   private readonly map: Map<string, any> = new Map();
+
   [key: string]: any;
 
   public static getInstance(): DataStore {
@@ -16,16 +15,12 @@ export default class DataStore {
     return DataStore.instance;
   }
 
-  public set(key: string, value: DataStoreSet): DataStore {
-    let mapValue: any = value;
-    if (typeof value === 'function') {
-      mapValue = new value();
-    }
-    this.map.set(key, mapValue);
+  public set<T>(key: string, value: { new (): T }): DataStore {
+    this.map.set(key, new value());
     return this;
   }
 
-  public get(key: string): DataStoreGet {
+  public get<T>(key: string): T {
     return this.map.get(key);
   }
 
