@@ -1,19 +1,16 @@
-/**
- * 下半部分铅笔类
- */
-import Pencil from './Pencil';
+import Pencil from '@/modules/runtime/Pencil';
 import Sprite from '@/modules/base/Sprite';
 
-export default class DownPencil extends Pencil {
+export default class PencilDown extends Pencil {
   public constructor(top: number) {
-    const image = Sprite.getImage('pencilDown');
-    super(image, top);
+    super(Sprite.getImage('pencilDown'), top);
   }
 
   public draw(): void {
-    // 两支铅笔之间固定的间距
-    const gap = window.innerHeight / 8;
-    this.dy = this.top + gap;
+    // gap 值，屏幕高度的一部分，根据自己喜好调整，值越大游戏越容易
+    const gapBetweenTwoPencils = window.innerHeight / 7;
+    // 最终下铅笔（我们可以看到）的高度，top 的值加上 gap 值
+    this.dy = this.top + gapBetweenTwoPencils;
     super.draw();
   }
 }

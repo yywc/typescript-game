@@ -1,23 +1,11 @@
-/**
- * 小鸟类，循环渲染三只小鸟
- */
 import Sprite from '@/modules/base/Sprite';
-import DataStore from '@/modules/base/DataStore';
-import BirdsProperty from '@/interfaces/BirdsProperty';
 
-export default class Birds extends Sprite implements BirdsProperty {
-  public readonly clippingXList: number[];
-  public readonly clippingYList: number[];
-  public readonly clippingWidthList: number[];
-  public readonly clippingHeightList: number[];
-  public readonly birdsWidthList: number[];
-  public readonly birdsHeightList: number[];
-  public readonly birdsXList: number[];
-  public readonly birdsYList: number[];
-  public readonly originYList: number[];
-  public time: number;
-  public index: number;
-  public count: number;
+export default class Birds extends Sprite {
+  public originY: number; // 小鸟初始的位置，需要再外部利用这个值重置小鸟位置
+  public birdDownedTime: number; // 小鸟自由落体的时间，计算距离
+  private birdCount: number; // 切换小鸟状态个数，用来计算小鸟索引
+  private birdIndex: number; // 小鸟索引，取 image 里小鸟状态
+  private readonly sxList: number[]; // 小鸟在 image 里的各个位置
 
   public constructor() {
     const image = Sprite.getImage('birds');
@@ -32,59 +20,59 @@ export default class Birds extends Sprite implements BirdsProperty {
       window.innerWidth,
       window.innerHeight
     );
-
-    this.ctx = DataStore.getInstance().ctx;
-    // 小鸟的三种状态用数组去存储
+    this.birdCount = 0;
+    this.birdDownedTime = 0;
+    this.birdIndex = 0;
+    // 小鸟宽高，数据从 png 中量的
     const birdWidth = 34;
     const birdHeight = 24;
-    const birdX = window.innerWidth / 4;
-    const birdY = window.innerHeight / 2;
+    // 小鸟在 canvas 中的位置
+    const drawXPos = window.innerWidth / 4;
+    const drawYPos = window.innerWidth / 2;
     // 小鸟宽 34，高 24，上下边距 10，左右边距 9
-    this.clippingXList = [9, 9 + 34 + 18, 9 + 34 + 18 + 34 + 18];
-    this.clippingYList = [10, 10, 10];
-    this.clippingWidthList = [birdWidth, birdWidth, birdWidth];
-    this.clippingHeightList = [birdHeight, birdHeight, birdHeight];
-    this.birdsWidthList = [birdWidth, birdWidth, birdWidth];
-    this.birdsHeightList = [birdHeight, birdHeight, birdHeight];
-    this.birdsXList = [birdX, birdX, birdX];
-    this.birdsYList = [birdY, birdY, birdY];
-    this.originYList = [birdY, birdY, birdY]; // 小鸟 y 坐标
-    this.time = 0; // 小鸟下落时间
-    this.index = 0; // 判断小鸟是第几只
-    this.count = 0; // 循环小鸟个数
+    this.sxList = [9, 9 + 34 + 18, 9 + 34 + 18 + 34 + 18];
+    this.sy = 10;
+    this.sWidth = birdWidth;
+    this.sHeight = birdHeight;
+    this.dx = drawXPos;
+    this.dy = drawYPos;
+    this.dWidth = birdWidth;
+    this.dHeight = birdHeight;
+    this.originY = drawYPos;
   }
 
+  private calculateBirds(): void {
+    // 切换小鸟状态个数，用以获得小鸟索引
+    this.birdCount += 0.1;
+    if (this.birdCount > 3) {
+      this.birdCount = 0;
+    }
+    // 获得小鸟索引，往小取值防止浏览器刷新过快闪烁
+    this.birdIndex = Math.floor(this.birdCount);
+    const g = 0.98 / 2.4; // 重力加速度，缓冲一下别太快
+    // 获得掉落的距离，计算方法是自由落体，gt²/2，为了点击时往上跳一下再掉下去
+    // 所以就用 gt(t-t0)/2，得到一个向上的位移
+    const t0 = 20;
+    const offsetY = (g * this.birdDownedTime * (this.birdDownedTime - t0)) / 2;
+    // 计算出要在 canvas 上画的位置
+    this.dy = offsetY + this.originY <= 0 ? 0 : offsetY + this.originY;
+    this.birdDownedTime += 1; // 掉落时间加一
+  }
+
+  // 核心方法
   public draw(): void {
-    // 0.1 是切换小鸟的速度
-    this.count += 0.1;
-    if (this.count > 3) {
-      this.count = 0;
-    }
-    // 由于浏览器默认一秒钟刷新 60 次，小鸟会出现快速切换，体验不好
-    // 采取了小数又会导致绘制不出来出现闪烁，取四舍五入，达到一个减速器的作用
-    this.index = Math.floor(this.count);
-
-    // 让小鸟掉下去
-    const g = 0.98 / 2.4;
-    // 向上偏移一点点
-    const offsetUp = 20;
-    const offsetY = (g * this.time * (this.time - offsetUp)) / 2;
-
-    for (let i = 0; i < 3; i += 1) {
-      this.birdsYList[i] = this.originYList[i] + offsetY;
-    }
-    this.time += 1;
-
+    // 计算小鸟的各种状态，然后调用父类的 draw 方法实现绘制
+    this.calculateBirds();
     super.draw(
       this.image,
-      this.clippingXList[this.index],
-      this.clippingYList[this.index],
-      this.clippingWidthList[this.index],
-      this.clippingHeightList[this.index],
-      this.birdsXList[this.index],
-      this.birdsYList[this.index],
-      this.birdsWidthList[this.index],
-      this.birdsHeightList[this.index]
+      this.sxList[this.birdIndex],
+      this.sy,
+      this.sWidth,
+      this.sHeight,
+      this.dx,
+      this.dy,
+      this.dWidth,
+      this.dHeight
     );
   }
 }

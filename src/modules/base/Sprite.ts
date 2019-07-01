@@ -1,11 +1,8 @@
-/**
- * 精灵的基类，负责初始化精灵加载的资源和大小以及位置
- */
-import DataStore from './DataStore';
 import Painter from '@/interfaces/Painter';
+import DataStore from './DataStore';
 
 export default class Sprite implements Painter {
-  public ctx: CanvasRenderingContext2D;
+  public ctx: CanvasRenderingContext2D = DataStore.getInstance().ctx;
   public image: HTMLImageElement;
   public sx: number;
   public sy: number;
@@ -15,10 +12,6 @@ export default class Sprite implements Painter {
   public dy: number;
   public dWidth: number;
   public dHeight: number;
-
-  public static getImage(key: string): HTMLImageElement {
-    return DataStore.getInstance().res.get(key);
-  }
 
   public constructor(
     image = new Image(),
@@ -41,6 +34,10 @@ export default class Sprite implements Painter {
     this.dy = dy;
     this.dWidth = dWidth;
     this.dHeight = dHeight;
+  }
+
+  public static getImage(key: string): HTMLImageElement {
+    return DataStore.getInstance().res.get(key) as HTMLImageElement;
   }
 
   public draw(

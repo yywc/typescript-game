@@ -1,6 +1,3 @@
-/**
- * 图片资源文件
- */
 import Background from '@/assets/background.png';
 import Birds from '@/assets/birds.png';
 import Land from '@/assets/land.png';
@@ -8,6 +5,9 @@ import PieDown from '@/assets/pie_down.png';
 import PieUp from '@/assets/pie_up.png';
 import StartButton from '@/assets/start_button.png';
 
+/**
+ * 图片资源文件
+ */
 const resource: readonly (readonly [string, string])[] = [
   ['background', Background],
   ['land', Land],

@@ -22,6 +22,7 @@ export default interface Painter {
   dWidth: number;
   dHeight: number;
 
+  // 设置为可选是因为在实现的时候解构赋值了默认值
   draw(
     image?: HTMLImageElement,
     sx?: number,

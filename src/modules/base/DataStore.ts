@@ -1,12 +1,7 @@
-/**
- * 变量缓存器，方便我们在不同的类中访问和修改变量
- */
-
 export default class DataStore {
   private static instance: DataStore;
   private readonly map: Map<string, any> = new Map();
-
-  [key: string]: any;
+  [key: string]: any; // 通过外部挂载的数据
 
   public static getInstance(): DataStore {
     if (!DataStore.instance) {
@@ -15,8 +10,8 @@ export default class DataStore {
     return DataStore.instance;
   }
 
-  public set<T>(key: string, value: { new (): T }): DataStore {
-    this.map.set(key, new value());
+  public set<T>(key: string, Constructor: { new (): T }): DataStore {
+    this.map.set(key, new Constructor());
     return this;
   }
 

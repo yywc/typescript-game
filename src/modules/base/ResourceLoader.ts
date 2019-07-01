@@ -1,33 +1,39 @@
-/**
- * 资源文件加载器，确保 canvas 在图片资源加载完成后才进行渲染
- */
-import Resources from './Resources';
+import resources from './Resources';
 
+/**
+ * 资源加载器
+ */
 export default class ResourceLoader {
   private static instance: ResourceLoader;
+  // 存储所有的图片
   private readonly map: Map<string, HTMLImageElement> = new Map();
 
-  public constructor() {
-    const imageStringMap = new Map(Resources);
+  private constructor() {
+    const imageMap = new Map(resources);
     let img: HTMLImageElement;
 
-    imageStringMap.forEach(
-      (value: string, key: string): void => {
+    imageMap.forEach(
+      (value, key): void => {
         img = new Image();
         img.src = value;
-        this.map.set(key, img);
+        this.map.set(key, img); // 设置图片对象
       }
     );
   }
 
   public static getInstance(): ResourceLoader {
-    if (ResourceLoader.instance) {
-      return ResourceLoader.instance;
+    if (!ResourceLoader.instance) {
+      ResourceLoader.instance = new ResourceLoader();
     }
-    return new ResourceLoader();
+    return ResourceLoader.instance;
   }
 
-  public onLoaded(): Promise<Map<string, HTMLImageElement>[]> {
+  /**
+   * pr 是包含 6 个 Map 对象的 Promise 数组
+   * 图片 onload 异步进行，通过 Promise.all 拿到所有 onload 完成后的数据
+   * 我们使用到的就是数组里任意一个就可以
+   */
+  public onLoad(): Promise<Map<string, HTMLImageElement>[]> {
     type PromiseMap = Promise<Map<string, HTMLImageElement>>;
     const pr: PromiseMap[] = [];
     let p: PromiseMap;
@@ -43,7 +49,7 @@ export default class ResourceLoader {
         pr.push(p);
       }
     );
-    // 图片全部加载完
+    // 让图片全都加载完成
     return Promise.all(pr);
   }
 }
