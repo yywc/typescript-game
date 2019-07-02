@@ -34,6 +34,8 @@ npm run build && npm run start
 
 可以对应分支查看每一个步骤的具体实现。
 
+[大纲](https://github.com/yywc/typescript-game/blob/master/doc/flappy_bird_xmind.png)
+
 + [基础知识介绍](https://github.com/yywc/typescript-game/blob/master/doc/typescript.md)
 + [搭建开发环境](https://github.com/yywc/ts-game/blob/step-1/README.md)
 + [绘制背景陆地](https://github.com/yywc/ts-game/blob/step-2/README.md)
