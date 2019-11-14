@@ -11,7 +11,7 @@
     "eslint": "eslint src --ext .ts --fix",
     "commit": "git-cz"
   },
-  "keywords": [],
+  "keywords": ["typescript"],
   "author": "yywc",
   "license": "ISC",
   "devDependencies": {
